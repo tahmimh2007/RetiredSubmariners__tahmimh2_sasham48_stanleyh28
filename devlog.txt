@@ -1,0 +1,6 @@
+stanleyH -- 2025-3-31 23:32
+  - Created devlog
+  - updated design doc
+  	- distributed work more evenly
+  	- updated component map
+
