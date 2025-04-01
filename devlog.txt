@@ -3,5 +3,6 @@ stanleyH -- 2025-3-31 23:32
   - updated design doc
   	- distributed work more evenly
   	- updated component map
+	- made plan more clear
   - created files
   - running app
