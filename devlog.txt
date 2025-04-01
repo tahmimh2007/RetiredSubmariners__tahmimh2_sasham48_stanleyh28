@@ -4,3 +4,4 @@ stanleyH -- 2025-3-31 23:32
   	- distributed work more evenly
   	- updated component map
   - created files
+  - running app
