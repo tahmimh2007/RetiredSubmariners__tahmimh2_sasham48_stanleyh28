@@ -13,3 +13,4 @@ sashaM -- 2025-4-1 00:20
 stanleyH, tahmimH -- 2025-4-1 IN CLASS
 -- pm tahmimH created droplet account on devo stanleyH's droplet for PM tahmimH
 stanleyH, tahmimH, sashaM -- 2025-4-2 IN CLASS
+-- pm tahmimH updated readme with preliminary install guides
