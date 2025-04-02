@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-import csv
-
-def read_data(csv_file):
-    with open(csv_file, 'r') as file:
-        header = file.readline()
-        body = file.readlines()
-        print(header)
-        print(body)
-        
-read_data('customers.csv')
-=======
 '''
 RetiredSubmariners: Stanley Hoo, Tahmim Hassan, Sasha Murokh
 SoftDev
@@ -20,6 +8,8 @@ Time Spent:
 
 import sqlite3
 from flask import session
+import csv, json
+import os
 
 db = sqlite3.connect("database.db", check_same_thread=False)
 cursor = db.cursor()
@@ -67,4 +57,26 @@ def add_files(username, filename):
 
 def get_fileid(filename):
     return cursor.execute(f"SELECT id FROM files WHERE filename='{filename}'").fetchone()[0]
->>>>>>> eabb103d064a2703526ca65024338705ff8e2a8d
+
+def read_data_from_csv(csv_file):
+    with open(csv_file, 'r') as file:
+        data = csv.reader(file)
+        header = next(data)
+        entries = [row for row in data]
+    return header, entries
+
+def read_data_from_json(json_file):
+    with open(json_file, 'r') as file:
+        data = json.load(file)
+        header = list(data[0].keys())
+        entries = []
+        for i in data:
+            entries.append([i[label] for label in header])
+    return header, entries
+    
+def read_file(filename):
+     file_name, file_extension = os.path.splitext(filename)
+     if file_extension == '.csv':
+         return file_name, read_data_from_csv(filename)
+     elif file_extension == '.json':
+         return file_name, read_data_from_json(filename)
