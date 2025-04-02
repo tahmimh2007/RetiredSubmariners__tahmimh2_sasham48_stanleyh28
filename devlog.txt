@@ -6,3 +6,11 @@ stanleyH -- 2025-3-31 23:32
 	- made plan more clear
   - created files
   - running app
+
+sashaM -- 2025-4-1 00:20
+  - updated site map on design doc
+
+stanleyH, tahmimH -- 2025-4-1 IN CLASS
+-- pm tahmimH created droplet account on devo stanleyH's droplet for PM tahmimH
+stanleyH, tahmimH, sashaM -- 2025-4-2 IN CLASS
+-- pm tahmimH updated readme with preliminary install guides
