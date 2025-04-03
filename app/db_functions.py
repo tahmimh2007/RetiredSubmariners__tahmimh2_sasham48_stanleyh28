@@ -15,13 +15,27 @@ db = sqlite3.connect("database.db", check_same_thread=False)
 cursor = db.cursor()
 
 
-'''
 #TO WRITE BASED ON CSV PARSING
-def add_file_table(filename,<csv>): #######
+def add_file_table(filename, headers, data):
     fileid = get_fileid(filename)
-    cursor.execute(f"CREATE TABLE IF NOT EXISTS file{fileid}(#######)")
+    
+    # Headers
+    columns = ", ".join([f'"{col}" TEXT' for col in headers])
+    col_list = ", ".join([f'"{col}"' for col in headers])
+    
+    # Create table
+    query = f'CREATE TABLE IF NOT EXISTS file{fileid} ({columns})'
+    cursor.execute(query)
+
+    # Insert data
+    placeholders = ", ".join(["?" for _ in headers])
+    insert_query = f'INSERT INTO file{fileid} ({col_list}) VALUES ({placeholders})'
+
+    for row in data:
+        cursor.execute(insert_query, row)
+
     db.commit()
-'''
+
 
 def add_user(username, password):
     cursor.execute("INSERT INTO users(username, password) VALUES (?, ?)", (username, password))
