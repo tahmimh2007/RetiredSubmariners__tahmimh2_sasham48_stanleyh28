@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>ML Analysis - Submarine Charts</title>
+  <script src="/static/js/ml.js" defer></script>
+</head>
+<body>
+  <h2>Machine Learning Model</h2>
+  <form method="POST">
+    <label>Select Target Variable:</label><br>
+    {% for header in headers %}
+      <input type="radio" name="target" value="{{ header }}"> {{ header }}<br>
+    {% endfor %}
+    <button type="submit">Train Model</button>
+  </form>
+  {% if results %}
+    <h3>Model Results</h3>
+    <pre>{{ results }}</pre>
+    <div id="ml-chart"></div>
+  {% endif %}
+</body>
+</html>

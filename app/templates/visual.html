@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Visualize - Submarine Charts</title>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="/static/js/visual.js" defer></script>
+</head>
+<body>
+  <h2>Visualize Your Data</h2>
+  <form id="chart-options">
+    <label>Graph Type:
+      <select name="chartType">
+        <option value="bar">Bar</option>
+        <option value="line">Line</option>
+        <option value="scatter">Scatter</option>
+      </select>
+    </label><br>
+    <label>Fields to Plot:</label><br>
+    {% for header in headers %}
+      <input type="checkbox" name="fields" value="{{ header }}">{{ header }}<br>
+    {% endfor %}
+    <button type="submit">Generate Graph</button>
+  </form>
+  <div id="chart"></div>
+</body>
+</html>

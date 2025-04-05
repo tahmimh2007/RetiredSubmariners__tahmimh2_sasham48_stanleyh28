@@ -6,14 +6,18 @@
   2025-04-21
   Time Spent:
 -->
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Homepage</title>
+  <title>Dashboard - Submarine Charts</title>
 </head>
 <body>
-    <p>hi</p>
+  <h2>Welcome, {{ username }}</h2>
+  <a href="/upload">Upload New File</a>
+  <h3>Your Uploaded Files:</h3>
+  <ul>
+    {% for file in files %}
+      <li><a href="{{ url_for('visual', file_id=file.id) }}">{{ file.filename }}</a></li>
+    {% endfor %}
+  </ul>
 </body>
-
 </html>
