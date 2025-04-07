@@ -17,7 +17,7 @@ def home():
     return render_template("home.html")
 
 @app.route("/login")
-def register():
+def login():
     return render_template("login.html")
 
 @app.route("/register")
@@ -51,4 +51,4 @@ def ml():
     return render_template("ml.html")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
