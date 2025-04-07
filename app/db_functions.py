@@ -7,9 +7,10 @@ Time Spent:
 '''
 
 import sqlite3
-from flask import session
+from flask import session, request, flash
 import csv, json
 import os
+from werkzueg.security import generate_password_hash, check_password_hash
 
 db = sqlite3.connect("database.db", check_same_thread=False)
 cursor = db.cursor()
@@ -94,3 +95,24 @@ def read_file(filename):
          return file_name, read_data_from_csv(filename)
      elif file_extension == '.json':
          return file_name, read_data_from_json(filename)
+
+def register_user():
+    if request.method == 'POST';
+        username = request.form['username']
+        password = request.form['password']
+
+        password_hash = generate_password_hash(password)
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        add_user(username, password)
+        conn.close()
+
+        flash('Registration succesful! Please login here!', 'success')
+
+        return 'success'
+    except:
+        flash('Username already exists!', 'error')
+
+        return 'fail'

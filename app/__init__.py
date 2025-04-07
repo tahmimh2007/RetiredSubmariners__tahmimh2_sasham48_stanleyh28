@@ -1,4 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
+from db_functions import register_user(), login_user()
 import os
 
 app = Flask(__name__)
@@ -11,18 +12,39 @@ def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in {'csv', 'json'}
 
-
 @app.route("/")
 def home():
     return render_template("home.html")
 
-@app.route("/login")
-def register():
+# handles user login
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        login_user()
+        if "username" in session:
+            return redirect(url_for("home"))
+        return redirect(url_for("login"))
     return render_template("login.html")
 
-@app.route("/register")
+# logs out user and redirects to home
+@app.route("/logout", methods=["GET", "POST"])
+def logout():
+    if "username" in session:
+        user = session.pop("username")
+        flash(f"{user}, you have been logged out.", "success")
+    return redirect(url_for("home"))
+
+# handles user registration 
+@app.route("/register", methods=["GET", "POST"])
 def register():
-    return render_template("register.html")
+    if "username" in session:
+        return redirect(url_for("home"))
+    elif request.method == "POST":
+        status = register_user()
+        if status == 'success':
+            return redirect(url_for("login"))
+        else:
+            return redirect(url_for("register"))
 
 @app.route("/visual")
 def visual():
