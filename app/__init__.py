@@ -19,7 +19,6 @@ def allowed_file(filename):
 def home():
     return render_template("home.html")
 
-<<<<<<< HEAD
 # handles user login
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -28,11 +27,6 @@ def login():
         if "username" in session:
             return redirect(url_for("home"))
         return redirect(url_for("login"))
-=======
-@app.route("/login")
-def login():
->>>>>>> refs/remotes/origin/main
-    return render_template("login.html")
 
 # logs out user and redirects to home
 @app.route("/logout", methods=["GET", "POST"])
