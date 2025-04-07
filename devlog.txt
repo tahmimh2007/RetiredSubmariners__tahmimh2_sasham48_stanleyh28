@@ -23,5 +23,10 @@ stanleyH -- 2025-4-3 00:07
 stanleyH -- 2025-4-5 13:57
   - flask app now runs on domain: p4.stanleyhoo1.tech
 	- templates for html pages
+
 tahmimH -- 2025-4-7 11:00
   - flask app ALMOST runs on domain, working on it am on uWSGI configuration currently
+
+stanleyH, tahmimH, sashaM -- 2025-4-7 IN CLASS
+  - worked on uploads, user login/logout, subdomain hosting on PM domain
+
