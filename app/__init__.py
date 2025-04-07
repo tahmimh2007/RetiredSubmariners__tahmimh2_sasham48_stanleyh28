@@ -19,6 +19,10 @@ def allowed_file(filename):
 def home():
     return render_template("home.html")
 
+@app.route("/login")
+def register():
+    return render_template("login.html")
+
 @app.route("/register")
 def register():
     return render_template("register.html")
