@@ -97,7 +97,7 @@ def read_file(filename):
          return file_name, read_data_from_json(filename)
 
 def register_user():
-    if request.method == 'POST';
+    if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
 

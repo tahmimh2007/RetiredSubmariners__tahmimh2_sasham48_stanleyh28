@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
-from db_functions import register_user(), login_user()
+from db_functions import register_user, login_user
 import os
 from os.path import join, dirname, abspath
 
