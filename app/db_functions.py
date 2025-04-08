@@ -10,7 +10,7 @@ import sqlite3
 from flask import session, request, flash
 import csv, json
 import os
-from werkzueg.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = sqlite3.connect("database.db", check_same_thread=False)
 cursor = db.cursor()
