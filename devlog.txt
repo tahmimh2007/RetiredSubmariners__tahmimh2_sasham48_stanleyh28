@@ -30,3 +30,8 @@ tahmimH -- 2025-4-7 11:00
 stanleyH, tahmimH, sashaM -- 2025-4-7 IN CLASS
   - worked on uploads, user login/logout, subdomain hosting on PM domain
 
+stanleyH -- 2025-4-8 1:49
+  - got uploads to work, can read csv and json files and store the info in database
+  - user register/login/logout
+  - fixed domain error
+  - flash messages and navbar
