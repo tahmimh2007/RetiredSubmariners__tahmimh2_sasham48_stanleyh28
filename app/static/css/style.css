@@ -2,10 +2,10 @@
 
 .flash-messages {
   position: fixed;
-  top: 30px; /* Distance from the top of the window */
+  top: 10px; /* Distance from the top of the window */
   left: 50%;
   transform: translateX(-50%); /* Center the messages horizontally */
-  z-index: 1000; /* Ensure the messages appear above other content */
+  z-index: 2000; /* Ensure the messages appear above other content */
   width: 90%; /* Adjust width as needed */
   max-width: 400px; /* Set a max-width for better presentation */
 }
@@ -49,4 +49,165 @@ color: #155724;
       opacity: 0; /* Fully transparent */
       margin-top: -7%; /* Move the message up so it doesn't block UI*/
   }
+}
+
+/* Navbar */
+.navbar {
+  background-color: #333333;
+  padding:10px;
+}
+
+.navbar {
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100%; 
+  background-color: #333333; 
+  z-index: 1000; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem; 
+  display: flex; 
+  align-items: center;
+  justify-content: space-between; 
+}
+
+.navbar ul {
+  list-style: none; 
+  display: flex; 
+  gap: 1.5rem; 
+  margin: 0; 
+  padding: 0; 
+}
+
+.navbar li a {
+  color: #ffffff; 
+  font-weight: bold;
+  text-decoration: none; 
+  font-size: 1rem; 
+  padding: 0.5rem 1rem; 
+  transition: background-color 0.3s ease, color 0.3s ease; 
+  border-radius: 5px; 
+}
+
+/* Hover effect */
+.navbar li a:hover {
+  background-color: #555555; 
+  color: #ffcc00;
+  text-decoration: none;
+}
+
+body {
+  padding-top: 40px; 
+}
+
+.navbar li.logout-button{
+  margin-left: auto;
+}
+
+.navbar li form button{
+  background-color: #dc3545; 
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Dropdown stuff */
+/*
+.navbar .dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.navbar .dropbtn {
+  color: #ffffff;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  border-radius: 5px;
+}
+
+.navbar .dropbtn:hover {
+  background-color: #555555;
+  color: #ffcc00;
+}
+
+.navbar .dropdown-content {
+  display: none; 
+  position: absolute;
+  top: calc(100%); 
+  left: 0;
+  background-color: #333333;
+  min-width: 180px; 
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 5px;
+  overflow: hidden;
+  padding: 5px 0; 
+}
+
+.navbar .dropdown-content li {
+  display: block;
+  text-align: left;
+  padding: 0; 
+}
+
+.navbar .dropdown-content li a {
+  color: #ffffff;
+  padding: 15px 20px; 
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar .dropdown-content li a:hover {
+  background-color: #555555;
+  color: #ffcc00;
+}
+
+.navbar .dropdown:hover .dropdown-content,
+.navbar .dropdown-content:hover {
+  display: block;
+}
+  */
+
+.navbar .spacer {
+  flex-grow: 10; 
+}
+
+.signout-btn {
+  background-color: #dc3545; 
+  color: white;
+  padding: 5px 10px;
+  text-decoration: none;
+  margin-left: 10px;
+  border-radius: 4px;
+}
+
+.signout-btn:hover {
+  background-color: #bd2130;
+}
+
+/* Welcome container */
+.welcome-container {
+  position: absolute; 
+  right: 80px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px; 
+  color: #ffffff;
+}
+
+/* Welcome message text */
+.welcome-message {
+  font-size: 1rem;
+  color: #ffffff;
 }

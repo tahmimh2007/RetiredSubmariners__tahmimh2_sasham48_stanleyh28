@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, create_tables  #, login_user
+from db_functions import register_user, login_user, create_tables
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -10,6 +10,8 @@ app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
 # Set the upload folder relative to the app root
 app.config['UPLOAD_FOLDER'] = "uploads"
 
+###FROM FLASK DOCUMENTATION
+#https://flask.palletsprojects.com/en/stable/patterns/fileuploads/
 # Ensure the upload directory exists
 upload_folder_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
 os.makedirs(upload_folder_path, exist_ok=True)
@@ -19,24 +21,18 @@ def allowed_file(filename):
 
 @app.route("/")
 def home():
+    if "username" in session:
+        return render_template("home.html", username=session['username'])
     return render_template("home.html")
 
 # Handles user login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        # You should implement the actual login logic (e.g. checking credentials)
-        username = request.form.get('username')
-        password = request.form.get('password')
-        # Dummy login check: Replace this with a call to your login_user function or equivalent logic
-        if username and password:
-            # For the sake of demonstration, assume login is successful
-            session["username"] = username
-            flash("Logged in successfully.", "success")
+        login_user()
+        if "username" in session:
             return redirect(url_for("home"))
-        else:
-            flash("Invalid login credentials.", "error")
-            return redirect(url_for("login"))
+        return redirect(url_for("login"))
     return render_template("login.html")
 
 # Logs out user and redirects to home
@@ -51,8 +47,8 @@ def logout():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        # register_user should perform registration and return a success/failure indicator.
         result = register_user()
+        print(result)
         if result == "success":
             flash("Registration successful! Please log in.", "success")
             return redirect(url_for("login"))

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <title>Register - Submarine Charts</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
   <header>
@@ -16,6 +17,22 @@
         {% endif %}
     {% endwith %}
   </header>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <ul>
+        <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+        <li><a href="{{ url_for('upload') }}">Upload📁</a></li>
+        <li><a href="{{ url_for('visual') }}">Visual👀</a></li>
+        <li><a href="{{ url_for('ml') }}">AI Model⚙️</a></li>
+        <!-- Username and signout button is signed in -->
+        {% if username %}
+            <div class="welcome-container">
+                <span class="welcome-message">Welcome, {{ username }}!</span>
+                <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+            </div>
+        {% endif %}
+    </ul>
+  </nav>
   <h2>Register</h2>
   <form method="POST">
     <input type="text" name="username" placeholder="Username" required>

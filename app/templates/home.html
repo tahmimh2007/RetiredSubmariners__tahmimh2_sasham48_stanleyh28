@@ -9,6 +9,7 @@
 <html lang="en">
 <head>
   <title>Dashboard - Submarine Charts</title>
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
   <header>
@@ -23,13 +24,39 @@
         {% endif %}
     {% endwith %}
   </header>
-  <h2>Welcome, {{ username }}</h2>
-  <a href="/upload">Upload New File</a>
-  <h3>Your Uploaded Files:</h3>
-  <ul>
-    {% for file in files %}
-      <li><a href="{{ url_for('visual', file_id=file.id) }}">{{ file.filename }}</a></li>
-    {% endfor %}
-  </ul>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <ul>
+        <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+        <li><a href="{{ url_for('upload') }}">Upload📁</a></li>
+        <li><a href="{{ url_for('visual') }}">Visual👀</a></li>
+        <li><a href="{{ url_for('ml') }}">AI Model⚙️</a></li>
+        <!-- Username and signout button is signed in -->
+        {% if username %}
+            <div class="welcome-container">
+                <span class="welcome-message">Welcome, {{ username }}!</span>
+                <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+            </div>
+        {% endif %}
+    </ul>
+  </nav>
+  <!-- If signed in will display balance, games, and transactions -->
+  {% if username %}
+    <h2>Hello</h2>
+    <a href="/upload">Upload New File</a>
+    <h3>Your Uploaded Files:</h3>
+    <ul>
+      {% for file in files %}
+        <li><a href="{{ url_for('visual', file_id=file.id) }}">{{ file.filename }}</a></li>
+      {% endfor %}
+    </ul>
+  <!-- For users not logged in -->
+  {% else %}
+    <h2>Welcome to RetiredSubmarine Charts</h2>
+    <p>To save your data, please log in.</p>
+    <div class="login-register-container">
+        <a href="{{ url_for('login') }}"><button>Go to Login</button></a>
+    </div>
+  {% endif %}
 </body>
 </html>

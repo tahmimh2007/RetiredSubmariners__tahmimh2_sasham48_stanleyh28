@@ -15,6 +15,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
 print("DB_PATH:", DB_PATH)
 
+# BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+# DB_DIR = os.path.join(BASE_DIR, "data")
+# os.makedirs(DB_DIR, exist_ok=True)  # Make sure the folder exists
+
+# DB_PATH = os.path.join(DB_DIR, 'database.db')
+# print("DB_PATH:", DB_PATH)
+
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -28,7 +35,7 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS users(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
+            password_hash TEXT NOT NULL
         );
     ''')
     
@@ -66,7 +73,7 @@ def add_file_table(filename, headers, data):
 def add_user(username, password):
     conn = get_db_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO users(username, password) VALUES (?, ?)", (username, password))
+    cur.execute("INSERT INTO users(username, password_hash) VALUES (?, ?)", (username, password))
     conn.commit()
     conn.close()
 
@@ -83,19 +90,6 @@ def get_id(username):
     user = cur.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
     conn.close()
     return user[0] if user else None
-
-def get_password(username):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    user = cur.execute("SELECT password FROM users WHERE username=?", (username,)).fetchone()
-    conn.close()
-    return user[0] if user else None
-
-def validate_user(username, password):
-    db_password = get_password(username)
-    if db_password:
-        return check_password_hash(db_password, password)
-    return False
 
 def get_files(username):
     conn = get_db_connection()
@@ -153,8 +147,25 @@ def register_user():
 
         try:
             add_user(username, password_hash)
-            flash('Registration successful! Please login here!', 'success')
             return 'success'
-        except Exception as e:
-            flash('Username already exists!', 'error')
+        except:
             return 'fail'
+
+# authenticates a user
+def login_user():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        conn = get_db_connection()
+        cur = conn.cursor()
+        # Retrieve hashed password for the given username
+        cur.execute("SELECT password_hash FROM users WHERE username = ?", (username,))
+        user_row = cur.fetchone()
+        conn.close()
+
+        # Checks hashed user password against database
+        if user_row and check_password_hash(user_row['password_hash'], password):
+            session['username'] = username
+            flash('Login successful!', 'success')
+        else:
+            flash('Invalid username or password!', 'error')
