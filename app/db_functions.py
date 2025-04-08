@@ -43,7 +43,7 @@ def create_tables():
     cur.execute('''
         CREATE TABLE IF NOT EXISTS files(
             file_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            filename TEXT NOT NULL UNIQUE, 
+            filename TEXT NOT NULL, 
             user_id INTEGER
         );
     ''')
