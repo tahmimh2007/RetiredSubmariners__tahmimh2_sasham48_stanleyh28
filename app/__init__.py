@@ -73,7 +73,7 @@ def upload():
                     return redirect(url_for('upload'))
                 if 'username' in session:
                     add_file(session['username'], file.filename)
-                    add_file_table(file.filename, header, entries)
+                    add_file_table(session['username'], file.filename, header, entries)
                     flash("File uploaded successfully.", "success")
                 return redirect(url_for('upload'))
             else:

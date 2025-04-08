@@ -44,17 +44,17 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS files(
             file_id INTEGER PRIMARY KEY AUTOINCREMENT, 
             filename TEXT NOT NULL, 
-            user_id INTEGER
+            user_id INTEGER NOT NULL
         );
     ''')
 
     conn.commit()
     conn.close()
 
-def add_file_table(filename, headers, data):
+def add_file_table(username, filename, headers, data):
     conn = get_db_connection()
     cur = conn.cursor()
-    file_id = get_file_id(filename)
+    file_id = get_file_id(username, filename)
     
     columns = ", ".join([f'"{col}" TEXT' for col in headers])
     col_list = ", ".join([f'"{col}"' for col in headers])
@@ -66,8 +66,6 @@ def add_file_table(filename, headers, data):
     insert_query = f'INSERT INTO file{file_id} ({col_list}) VALUES ({placeholders})'
 
     for row in data:
-        print(insert_query)
-        print(row)
         cur.execute(insert_query, tuple(row))
 
     conn.commit()
@@ -87,7 +85,7 @@ def get_users():
     conn.close()
     return users
 
-def get_id(username):
+def get_user_id(username):
     conn = get_db_connection()
     cur = conn.cursor()
     user = cur.execute("SELECT user_id FROM users WHERE username=?", (username,)).fetchone()
@@ -97,7 +95,7 @@ def get_id(username):
 def get_files(username):
     conn = get_db_connection()
     cur = conn.cursor()
-    userid = get_id(username)
+    userid = get_user_id(username)
     if userid is None:
         return []
     files = cur.execute("SELECT filename FROM files WHERE userid=?", (userid,)).fetchall()
@@ -107,16 +105,17 @@ def get_files(username):
 def add_file(username, filename):
     conn = get_db_connection()
     cur = conn.cursor()
-    user_id = get_id(username)
+    user_id = get_user_id(username)
     if user_id is not None:
         cur.execute("INSERT INTO files(filename, user_id) VALUES(?, ?)", (filename, user_id))
         conn.commit()
     conn.close()
 
-def get_file_id(filename):
+def get_file_id(username, filename):
     conn = get_db_connection()
     cur = conn.cursor()
-    file = cur.execute("SELECT file_id FROM files WHERE filename=?", (filename,)).fetchone()
+    user_id = get_user_id(username)
+    file = cur.execute("SELECT file_id FROM files WHERE (user_id, filename)=(?, ?)", (user_id, filename)).fetchone()
     conn.close()
     return file[0] if file else None
 
