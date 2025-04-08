@@ -10,6 +10,7 @@ import sqlite3
 from flask import session, request, flash
 import csv, json
 import os
+import io
 from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
@@ -33,7 +34,7 @@ def create_tables():
     
     cur.execute('''
         CREATE TABLE IF NOT EXISTS users(
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL
         );
@@ -41,9 +42,9 @@ def create_tables():
     
     cur.execute('''
         CREATE TABLE IF NOT EXISTS files(
-            id INTEGER PRIMARY KEY, 
+            file_id INTEGER PRIMARY KEY AUTOINCREMENT, 
             filename TEXT NOT NULL UNIQUE, 
-            userid INTEGER
+            user_id INTEGER
         );
     ''')
 
@@ -53,19 +54,21 @@ def create_tables():
 def add_file_table(filename, headers, data):
     conn = get_db_connection()
     cur = conn.cursor()
-    fileid = get_fileid(filename)
+    file_id = get_file_id(filename)
     
     columns = ", ".join([f'"{col}" TEXT' for col in headers])
     col_list = ", ".join([f'"{col}"' for col in headers])
     
-    query = f'CREATE TABLE IF NOT EXISTS file{fileid} ({columns})'
+    query = f'CREATE TABLE IF NOT EXISTS file{file_id} ({columns})'
     cur.execute(query)
 
     placeholders = ", ".join(["?" for _ in headers])
-    insert_query = f'INSERT INTO file{fileid} ({col_list}) VALUES ({placeholders})'
+    insert_query = f'INSERT INTO file{file_id} ({col_list}) VALUES ({placeholders})'
 
     for row in data:
-        cur.execute(insert_query, row)
+        print(insert_query)
+        print(row)
+        cur.execute(insert_query, tuple(row))
 
     conn.commit()
     conn.close()
@@ -87,7 +90,7 @@ def get_users():
 def get_id(username):
     conn = get_db_connection()
     cur = conn.cursor()
-    user = cur.execute("SELECT id FROM users WHERE username=?", (username,)).fetchone()
+    user = cur.execute("SELECT user_id FROM users WHERE username=?", (username,)).fetchone()
     conn.close()
     return user[0] if user else None
 
@@ -101,42 +104,53 @@ def get_files(username):
     conn.close()
     return files
 
-def add_files(username, filename):
+def add_file(username, filename):
     conn = get_db_connection()
     cur = conn.cursor()
-    userid = get_id(username)
-    if userid is not None:
-        cur.execute("INSERT INTO files(filename, userid) VALUES(?, ?)", (filename, userid))
+    user_id = get_id(username)
+    if user_id is not None:
+        cur.execute("INSERT INTO files(filename, user_id) VALUES(?, ?)", (filename, user_id))
         conn.commit()
     conn.close()
 
-def get_fileid(filename):
+def get_file_id(filename):
     conn = get_db_connection()
     cur = conn.cursor()
-    file = cur.execute("SELECT id FROM files WHERE filename=?", (filename,)).fetchone()
+    file = cur.execute("SELECT file_id FROM files WHERE filename=?", (filename,)).fetchone()
     conn.close()
     return file[0] if file else None
 
-def read_data_from_csv(csv_file):
-    with open(csv_file, 'r') as file:
-        data = csv.reader(file)
-        header = next(data)
-        entries = [row for row in data]
-    return header, entries
+# For csv files
+def save_csv_data(data):
+    try:
+        # Converts string to csv format
+        csv_file = io.StringIO(data)
+        csv_data = csv.reader(csv_file)
+        header = next(csv_data)
+        entries = [row for row in csv_data]
+        return header, entries
+    except:
+        flash("File is not valid CSV!", 'error')
+        return None, None
 
-def read_data_from_json(json_file):
-    with open(json_file, 'r') as file:
-        data = json.load(file)
-        header = list(data[0].keys()) if data else []
-        entries = [[item[key] for key in header] for item in data]
-    return header, entries
+# For json files
+def save_json_data(data):
+    try:
+        # Converts string to json format
+        json_data = json.loads(data)
+        header = list(json_data[0].keys()) if json_data else []
+        entries = [[item[key] for key in header] for item in json_data]
+        return header, entries
+    except:
+        flash("File is not valid JSON!", 'error')
+        return None, None
 
-def read_file(filename):
-    file_name, file_extension = os.path.splitext(filename)
-    if file_extension == '.csv':
-        return file_name, read_data_from_csv(filename)
-    elif file_extension == '.json':
-        return file_name, read_data_from_json(filename)
+# Returns headers and entries of uploaded file to save
+def save_data(data, file_extension):
+    if file_extension == 'csv':
+        return save_csv_data(data)
+    elif file_extension == 'json':
+        return save_json_data(data)
 
 def register_user():
     create_tables()

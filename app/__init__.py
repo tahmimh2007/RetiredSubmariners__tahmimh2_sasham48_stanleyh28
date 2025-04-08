@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, login_user, create_tables
+from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -7,17 +7,12 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
 
-# Set the upload folder relative to the app root
-app.config['UPLOAD_FOLDER'] = "uploads"
-
-###FROM FLASK DOCUMENTATION
-#https://flask.palletsprojects.com/en/stable/patterns/fileuploads/
-# Ensure the upload directory exists
-upload_folder_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
-os.makedirs(upload_folder_path, exist_ok=True)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv', 'json'}
+def file_type(filename):
+    extension = filename.rsplit('.', 1)[1].lower()
+    if '.' in filename and extension in {'csv', 'json'}:
+        return True, extension
+    else:
+        return False, extension
 
 @app.route("/")
 def home():
@@ -64,19 +59,26 @@ def visual():
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
-        if 'file' not in request.files:
-            flash("Please upload a file.", "error")
-            return redirect(url_for("upload"))
         file = request.files['file']
-        if file.filename == '':
-            flash("No file selected.", "error")
-            return redirect(url_for("upload"))
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            save_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)
-            file.save(save_path)
-            flash("File uploaded successfully.", "success")
-            return redirect(url_for('upload'))
+        if file:
+            allowed, extension = file_type(file.filename)
+            if allowed:
+                 # Reading the entire content of the file as bytes
+                file_content = file.read()
+                
+                # If you need it as a string (for a text file), you can decode it:
+                text_content = file_content.decode('utf-8')
+                header, entries = save_data(text_content, extension)
+                if header==None or entries==None:
+                    return redirect(url_for('upload'))
+                if 'username' in session:
+                    add_file(session['username'], file.filename)
+                    add_file_table(file.filename, header, entries)
+                    flash("File uploaded successfully.", "success")
+                return redirect(url_for('upload'))
+            else:
+                flash(f"You uploaded a .{extension} file which is currently not supported! Try again with a .json or .csv file!", 'error')
+                return redirect(url_for('upload'))
     return render_template("upload.html")
 
 @app.route("/ml")
