@@ -11,6 +11,18 @@
   <title>Dashboard - Submarine Charts</title>
 </head>
 <body>
+  <header>
+    <!-- Allows flashing messages in the html -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+  </header>
   <h2>Welcome, {{ username }}</h2>
   <a href="/upload">Upload New File</a>
   <h3>Your Uploaded Files:</h3>

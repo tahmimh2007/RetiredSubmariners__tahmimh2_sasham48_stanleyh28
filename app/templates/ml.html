@@ -5,6 +5,18 @@
   <script src="/static/js/ml.js" defer></script>
 </head>
 <body>
+  <header>
+    <!-- Allows flashing messages in the html -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+  </header>
   <h2>Machine Learning Model</h2>
   <form method="POST">
     <label>Select Target Variable:</label><br>

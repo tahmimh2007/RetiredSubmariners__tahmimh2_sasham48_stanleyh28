@@ -5,6 +5,18 @@
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
+  <header>
+    <!-- Allows flashing messages in the html -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+  </header>
   <h2>Login</h2>
   <form method="POST">
     <input type="text" name="username" placeholder="Username" required>
@@ -12,10 +24,5 @@
     <button type="submit">Login</button>
   </form>
   <p>Don't have an account? <a href="/register">Register here</a></p>
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul>{% for msg in messages %}<li>{{ msg }}</li>{% endfor %}</ul>
-    {% endif %}
-  {% endwith %}
 </body>
 </html>

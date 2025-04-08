@@ -6,22 +6,20 @@ TSD: tbd
 Time Spent:
 '''
 
-import sqlite3
-from flask import session
-
-#connects to SQLite database, creates if not already made
-db = sqlite3.connect("database.db", check_same_thread=False)
-cursor = db.cursor()
+from db_functions import get_db_connection
 
 #user table
 def user_table():
-    cursor.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, password TEXT NOT NULL)")
-    db.commit()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE, password TEXT NOT NULL)")
+    conn.commit()
+    conn.close()
 
 #files table
 def files_table():
-    cursor.execute("CREATE TABLE IF NOT EXISTS files(id INTEGER PRIMARY KEY, filename TEXT NOT NULL UNIQUE, userid INTEGER)")
-    db.commit()
-
-user_table()
-files_table()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS files(id INTEGER PRIMARY KEY, filename TEXT NOT NULL UNIQUE, userid INTEGER)")
+    conn.commit()
+    conn.close()

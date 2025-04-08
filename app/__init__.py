@@ -1,16 +1,18 @@
-from flask import Flask, render_template, flash, request, redirect, url_for, send_from_directory
-from db_functions import register_user, login_user
+from flask import Flask, render_template, flash, request, redirect, url_for, session
+from db_functions import register_user, create_tables  #, login_user
 import os
 from os.path import join, dirname, abspath
-
-app = Flask(__name__)
-
-###FROM FLASK DOCUMENTATION
-#https://flask.palletsprojects.com/en/stable/patterns/fileuploads/
 from werkzeug.utils import secure_filename
 
-app.config['UPLOAD_FOLDER'] = '/uploads'
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY") or os.urandom(32)
 
+# Set the upload folder relative to the app root
+app.config['UPLOAD_FOLDER'] = "uploads"
+
+# Ensure the upload directory exists
+upload_folder_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'])
+os.makedirs(upload_folder_path, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv', 'json'}
@@ -19,16 +21,25 @@ def allowed_file(filename):
 def home():
     return render_template("home.html")
 
-# handles user login
+# Handles user login
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        login_user()
-        if "username" in session:
+        # You should implement the actual login logic (e.g. checking credentials)
+        username = request.form.get('username')
+        password = request.form.get('password')
+        # Dummy login check: Replace this with a call to your login_user function or equivalent logic
+        if username and password:
+            # For the sake of demonstration, assume login is successful
+            session["username"] = username
+            flash("Logged in successfully.", "success")
             return redirect(url_for("home"))
-        return redirect(url_for("login"))
+        else:
+            flash("Invalid login credentials.", "error")
+            return redirect(url_for("login"))
+    return render_template("login.html")
 
-# logs out user and redirects to home
+# Logs out user and redirects to home
 @app.route("/logout", methods=["GET", "POST"])
 def logout():
     if "username" in session:
@@ -36,17 +47,19 @@ def logout():
         flash(f"{user}, you have been logged out.", "success")
     return redirect(url_for("home"))
 
-# handles user registration 
+# Handles user registration
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if "username" in session:
-        return redirect(url_for("home"))
-    elif request.method == "POST":
-        status = register_user()
-        if status == 'success':
+    if request.method == "POST":
+        # register_user should perform registration and return a success/failure indicator.
+        result = register_user()
+        if result == "success":
+            flash("Registration successful! Please log in.", "success")
             return redirect(url_for("login"))
         else:
+            flash("Registration failed. Username may already exist.", "error")
             return redirect(url_for("register"))
+    return render_template("register.html")
 
 @app.route("/visual")
 def visual():
@@ -54,21 +67,20 @@ def visual():
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
-    ###DIRECTLY FROM FLASK DOCUMENTATION
-    #https://flask.palletsprojects.com/en/stable/patterns/fileuploads/
     if request.method == 'POST':
         if 'file' not in request.files:
-            print("upload a file") ###for flash message later
+            flash("Please upload a file.", "error")
             return redirect(url_for("upload"))
         file = request.files['file']
         if file.filename == '':
-            print("upload a file") ###for flash message later
+            flash("No file selected.", "error")
             return redirect(url_for("upload"))
         if file and allowed_file(file.filename):
-            print(f"filename {file.filename}")
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('upload')) ##redirect to where we need it
+            save_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)
+            file.save(save_path)
+            flash("File uploaded successfully.", "success")
+            return redirect(url_for('upload'))
     return render_template("upload.html")
 
 @app.route("/ml")
@@ -76,4 +88,5 @@ def ml():
     return render_template("ml.html")
 
 if __name__ == "__main__":
+    create_tables()  # Initialize database tables before starting the app
     app.run(host='0.0.0.0')
