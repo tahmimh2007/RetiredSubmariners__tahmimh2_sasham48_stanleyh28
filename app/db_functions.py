@@ -31,7 +31,7 @@ def get_db_connection():
 def create_tables():
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('''
         CREATE TABLE IF NOT EXISTS users(
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,11 +39,11 @@ def create_tables():
             password_hash TEXT NOT NULL
         );
     ''')
-    
+
     cur.execute('''
         CREATE TABLE IF NOT EXISTS files(
-            file_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            filename TEXT NOT NULL, 
+            file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename TEXT NOT NULL,
             user_id INTEGER NOT NULL
         );
     ''')
@@ -55,10 +55,10 @@ def add_file_table(username, filename, headers, data):
     conn = get_db_connection()
     cur = conn.cursor()
     file_id = get_file_id(username, filename)
-    
+
     columns = ", ".join([f'"{col}" TEXT' for col in headers])
     col_list = ", ".join([f'"{col}"' for col in headers])
-    
+
     query = f'CREATE TABLE IF NOT EXISTS file{file_id} ({columns})'
     cur.execute(query)
 
@@ -152,7 +152,6 @@ def save_data(data, file_extension):
         return save_json_data(data)
 
 def register_user():
-    create_tables()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
