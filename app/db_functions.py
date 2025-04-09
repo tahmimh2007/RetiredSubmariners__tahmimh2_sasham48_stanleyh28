@@ -98,7 +98,7 @@ def get_files(username):
     userid = get_user_id(username)
     if userid is None:
         return []
-    files = cur.execute("SELECT filename FROM files WHERE userid=?", (userid,)).fetchall()
+    files = cur.execute("SELECT filename FROM files WHERE user_id=?", (userid,)).fetchall()
     conn.close()
     return files
 

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file
+from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -17,7 +17,7 @@ def file_type(filename):
 @app.route("/")
 def home():
     if "username" in session:
-        return render_template("home.html", username=session['username'])
+        return render_template("home.html", username=session['username'], files=get_files(session['username']))
     return render_template("home.html")
 
 # Handles user login
@@ -65,7 +65,7 @@ def upload():
             if allowed:
                  # Reading the entire content of the file as bytes
                 file_content = file.read()
-                
+
                 # If you need it as a string (for a text file), you can decode it:
                 text_content = file_content.decode('utf-8')
                 header, entries = save_data(text_content, extension)
