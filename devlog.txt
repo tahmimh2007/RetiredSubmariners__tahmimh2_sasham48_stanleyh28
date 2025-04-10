@@ -35,3 +35,8 @@ stanleyH -- 2025-4-8 1:49
   - user register/login/logout
   - fixed domain error
   - flash messages and navbar
+
+stanleyH -- 2025-4-10 4:40
+  - added warning message if user uploads file with same name twice
+  - added file display on homepage so users can see past files uploaded
+  - fixed some database stuff and logout not appearing on navbar
