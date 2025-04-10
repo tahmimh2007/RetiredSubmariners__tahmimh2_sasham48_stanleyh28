@@ -1,9 +1,11 @@
 stanleyH -- 2025-3-31 23:32
   - created devlog
   - updated design doc
+  DESIGN REVISIONS THUS FAR:
   	- distributed work more evenly
   	- updated component map
 	- made plan more clear
+  ====================================
   - created files
   - running app
 
