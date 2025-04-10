@@ -35,7 +35,19 @@
         {% endif %}
     </ul>
   </nav>
-  <h2>Visualize Your Data</h2>
+  {% if username %}
+  {% if selected %}
+  {% else %}
+  <h3>Your Uploaded Files:</h3>
+  <ul>
+    {% for filename, file_id in files %}
+      <li><a href="{{ url_for('visual', file_id=file_id) }}">{{ filename }}</a></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endif %}
+  {% if selected %}
+  <h2>Visualize {{selected}}</h2>
   <form id="chart-options">
     <label>Graph Type:
       <select name="chartType">
@@ -51,5 +63,8 @@
     <button type="submit">Generate Graph</button>
   </form>
   <div id="chart"></div>
+  {% else %}
+  <h2>SELECT A FILE</h2>
+  {% endif %}
 </body>
 </html>
