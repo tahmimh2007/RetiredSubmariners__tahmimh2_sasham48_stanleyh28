@@ -28,10 +28,11 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row
     return conn
 
+#Initialize tables
 def create_tables():
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     cur.execute('''
         CREATE TABLE IF NOT EXISTS users(
             user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,11 +40,11 @@ def create_tables():
             password_hash TEXT NOT NULL
         );
     ''')
-    
+
     cur.execute('''
         CREATE TABLE IF NOT EXISTS files(
-            file_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            filename TEXT NOT NULL, 
+            file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename TEXT NOT NULL,
             user_id INTEGER NOT NULL
         );
     ''')
@@ -51,14 +52,15 @@ def create_tables():
     conn.commit()
     conn.close()
 
+#Add a new file table called file[id], where id corresponds to fileid in files
 def add_file_table(username, filename, headers, data):
     conn = get_db_connection()
     cur = conn.cursor()
     file_id = get_file_id(username, filename)
-    
+
     columns = ", ".join([f'"{col}" TEXT' for col in headers])
     col_list = ", ".join([f'"{col}"' for col in headers])
-    
+
     query = f'CREATE TABLE IF NOT EXISTS file{file_id} ({columns})'
     cur.execute(query)
 
@@ -71,6 +73,7 @@ def add_file_table(username, filename, headers, data):
     conn.commit()
     conn.close()
 
+#create new user
 def add_user(username, password):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -78,6 +81,7 @@ def add_user(username, password):
     conn.commit()
     conn.close()
 
+#get list of all users
 def get_users():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -85,6 +89,7 @@ def get_users():
     conn.close()
     return users
 
+#get user id from username
 def get_user_id(username):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -92,6 +97,7 @@ def get_user_id(username):
     conn.close()
     return user[0] if user else None
 
+#get list of all files associated with username
 def get_files(username):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -102,6 +108,7 @@ def get_files(username):
     conn.close()
     return [file[0] for file in filenames]
 
+#add a new file for the user in files in order to get a unique fileid
 def add_file(username, filename):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -111,6 +118,7 @@ def add_file(username, filename):
         conn.commit()
     conn.close()
 
+#get file id from files
 def get_file_id(username, filename):
     conn = get_db_connection()
     cur = conn.cursor()
@@ -151,8 +159,17 @@ def save_data(data, file_extension):
     elif file_extension == 'json':
         return save_json_data(data)
 
+def get_headers(file_id): ###should work 
+    conn = get_db_connection()
+    cur = conn.cursor()
+    files = cur.execute(f"SELECT name FROM pragma_table_info('{file_id}')").fetchall()
+    conn.close()
+    return files
+
+
+
+#registers a user
 def register_user():
-    create_tables()
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']

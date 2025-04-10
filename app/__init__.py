@@ -17,11 +17,7 @@ def file_type(filename):
 @app.route("/")
 def home():
     if "username" in session:
-        username = session['username']
-        user_files = get_files(username)
-        file_ids = [get_file_id(username, file) for file in user_files]
-        files = zip(user_files, file_ids)
-        return render_template("home.html", username=username, files=files)
+        return render_template("home.html", username=session['username'])
     return render_template("home.html")
 
 # Handles user login
@@ -74,7 +70,7 @@ def upload():
                         return render_template("upload.html")
                 # Reading the entire content of the file as bytes
                 file_content = file.read()
-                
+
                 # If you need it as a string (for a text file), you can decode it:
                 text_content = file_content.decode('utf-8')
                 header, entries = save_data(text_content, extension)
