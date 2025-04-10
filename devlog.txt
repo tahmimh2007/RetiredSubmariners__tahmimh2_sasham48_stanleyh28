@@ -42,3 +42,7 @@ stanleyH -- 2025-4-10 4:40
   - added warning message if user uploads file with same name twice
   - added file display on homepage so users can see past files uploaded
   - fixed some database stuff and logout not appearing on navbar
+
+
+tahmimH, sashaM -- 2025-4-10 IN CLASS
+  - droplet setup, visuals page
