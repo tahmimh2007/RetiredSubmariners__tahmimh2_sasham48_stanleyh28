@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file
+from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -17,7 +17,11 @@ def file_type(filename):
 @app.route("/")
 def home():
     if "username" in session:
-        return render_template("home.html", username=session['username'])
+        username = session['username']
+        user_files = get_files(username)
+        file_ids = [get_file_id(username, file) for file in user_files]
+        files = zip(user_files, file_ids)
+        return render_template("home.html", username=username, files=files)
     return render_template("home.html")
 
 # Handles user login
@@ -63,7 +67,12 @@ def upload():
         if file:
             allowed, extension = file_type(file.filename)
             if allowed:
-                 # Reading the entire content of the file as bytes
+                if 'username' in session:
+                    user_files = get_files(session['username'])
+                    if file.filename in user_files:
+                        flash("You have already uploaded a file with the same name before. Would you like to override your old file?", 'warning')
+                        return render_template("upload.html")
+                # Reading the entire content of the file as bytes
                 file_content = file.read()
                 
                 # If you need it as a string (for a text file), you can decode it:
@@ -74,7 +83,7 @@ def upload():
                 if 'username' in session:
                     add_file(session['username'], file.filename)
                     add_file_table(session['username'], file.filename, header, entries)
-                    flash("File uploaded successfully.", "success")
+                flash("File uploaded successfully.", "success")
                 return redirect(url_for('upload'))
             else:
                 flash(f"You uploaded a .{extension} file which is currently not supported! Try again with a .json or .csv file!", 'error')

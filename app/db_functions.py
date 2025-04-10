@@ -95,12 +95,12 @@ def get_user_id(username):
 def get_files(username):
     conn = get_db_connection()
     cur = conn.cursor()
-    userid = get_user_id(username)
-    if userid is None:
+    user_id = get_user_id(username)
+    if user_id is None:
         return []
-    files = cur.execute("SELECT filename FROM files WHERE userid=?", (userid,)).fetchall()
+    filenames = cur.execute("SELECT filename FROM files WHERE user_id=?", (user_id,)).fetchall()
     conn.close()
-    return files
+    return [file[0] for file in filenames]
 
 def add_file(username, filename):
     conn = get_db_connection()

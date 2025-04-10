@@ -46,8 +46,8 @@
     <a href="/upload">Upload New File</a>
     <h3>Your Uploaded Files:</h3>
     <ul>
-      {% for file in files %}
-        <li><a href="{{ url_for('visual', file_id=file.id) }}">{{ file.filename }}</a></li>
+      {% for filename, file_id in files %}
+        <li><a href="{{ url_for('visual', file_id=file_id) }}">{{ filename }}</a></li>
       {% endfor %}
     </ul>
   <!-- For users not logged in -->
