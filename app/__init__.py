@@ -17,7 +17,11 @@ def file_type(filename):
 @app.route("/")
 def home():
     if "username" in session:
-        return render_template("home.html", username=session['username'])
+        username = session['username']
+        filenames = get_files(username)
+        file_ids = [get_file_id(username, file) for file in filenames]
+        files = zip(filenames, file_ids)
+        return render_template("home.html", username=username, files=files)
     return render_template("home.html")
 
 # Handles user login
@@ -54,6 +58,8 @@ def register():
 
 @app.route("/visual")
 def visual():
+    if 'username' in session:
+        return render_template("visual.html", username=session['username'])
     return render_template("visual.html")
 
 @app.route("/upload", methods=['GET', 'POST'])
@@ -84,10 +90,14 @@ def upload():
             else:
                 flash(f"You uploaded a .{extension} file which is currently not supported! Try again with a .json or .csv file!", 'error')
                 return redirect(url_for('upload'))
+    if 'username' in session:
+        return render_template("upload.html", username=session['username'])
     return render_template("upload.html")
 
 @app.route("/ml")
 def ml():
+    if 'username' in session:
+        return render_template("ml.html", username=session['username'])
     return render_template("ml.html")
 
 if __name__ == "__main__":

@@ -36,8 +36,8 @@
 }
 
 .flash-message.warning {
-  background-color: #e5edd4;
-  color: #8cb812;
+  background-color: #fff3cd;  
+  color: #856404;             
 }
 
 /* Keyframes for fade-out animation */
