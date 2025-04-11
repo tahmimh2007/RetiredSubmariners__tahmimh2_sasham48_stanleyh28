@@ -66,30 +66,38 @@ def visual():
 def upload():
     if request.method == 'POST':
         file = request.files['file']
+        override = request.form.get('override', 'false') == 'true'
+
         if file:
             allowed, extension = file_type(file.filename)
             if allowed:
                 if 'username' in session:
-                    user_files = get_files(session['username'])
-                    if file.filename in user_files:
-                        flash("You have already uploaded a file with the same name before. Would you like to override your old file?", 'warning')
-                        return render_template("upload.html")
-                # Reading the entire content of the file as bytes
-                file_content = file.read()
+                    username = session['username']
+                    user_files = get_files(username)
+                    filename = secure_filename(file.filename)
 
-                # If you need it as a string (for a text file), you can decode it:
-                text_content = file_content.decode('utf-8')
-                header, entries = save_data(text_content, extension)
-                if header==None or entries==None:
+                    if filename in user_files and not override:
+                        # Ask for confirmation
+                        return render_template("upload.html", duplicate=True, filename=filename)
+
+                    # Read content
+                    file_content = file.read()
+                    text_content = file_content.decode('utf-8')
+                    header, entries = save_data(text_content, extension)
+                    if header is None or entries is None:
+                        flash("Error parsing file. Check file format.", 'error')
+                        return redirect(url_for('upload'))
+
+                    # Save or override
+                    add_file(username, filename)
+                    add_file_table(username, filename, header, entries)
+
+                    flash("File uploaded successfully.", "success")
                     return redirect(url_for('upload'))
-                if 'username' in session:
-                    add_file(session['username'], file.filename)
-                    add_file_table(session['username'], file.filename, header, entries)
-                flash("File uploaded successfully.", "success")
-                return redirect(url_for('upload'))
             else:
-                flash(f"You uploaded a .{extension} file which is currently not supported! Try again with a .json or .csv file!", 'error')
+                flash(f"Unsupported file format '.{extension}'. Only .csv or .json allowed.", 'error')
                 return redirect(url_for('upload'))
+
     if 'username' in session:
         return render_template("upload.html", username=session['username'])
     return render_template("upload.html")

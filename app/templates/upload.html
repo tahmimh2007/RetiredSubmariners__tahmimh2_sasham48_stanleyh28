@@ -56,6 +56,7 @@
     {% endwith %}
 
     <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="override" id="override" value="false">
         <div class="mb-3">
             <label for="file" class="form-label">Choose CSV or JSON file:</label>
             <input type="file" name="file" id="file" accept=".csv, .json" required>
@@ -82,13 +83,19 @@
     </form>
 
     <script>
-      // Toggle manual heading input visibility
       const auto = document.getElementById('auto');
       const manual = document.getElementById('manual');
       const manualDiv = document.getElementById('manual-headings');
-
       auto.addEventListener('change', () => manualDiv.style.display = 'none');
       manual.addEventListener('change', () => manualDiv.style.display = 'block');
+    
+      {% if duplicate %}
+        const userConfirmed = confirm("You have already uploaded a file named '{{ filename }}'. Do you want to override it?");
+        if (userConfirmed) {
+          document.getElementById('override').value = 'true';
+          document.querySelector('form').submit();
+        }
+      {% endif %}
     </script>
 </body>
 </html>
