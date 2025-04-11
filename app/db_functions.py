@@ -159,14 +159,20 @@ def save_data(data, file_extension):
     elif file_extension == 'json':
         return save_json_data(data)
 
-def get_headers(file_id): ###should work 
+def get_headers(file_id): ###should work
     conn = get_db_connection()
     cur = conn.cursor()
     files = cur.execute(f"SELECT name FROM pragma_table_info('{file_id}')").fetchall()
     conn.close()
     return files
 
-
+def get_filename(file_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    filename = cur.execute("SELECT * FROM files WHERE file_id=?", (file_id,)).fetchone()
+    print(f'FILENAME{filename}')
+    conn.close()
+    return filename
 
 #registers a user
 def register_user():

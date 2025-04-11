@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id
+from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id, get_filename
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -59,7 +59,18 @@ def register():
 @app.route("/visual")
 def visual():
     if 'username' in session:
-        return render_template("visual.html", username=session['username'])
+        username = session['username']
+        filenames = get_files(username)
+        file_ids = [get_file_id(username, file) for file in filenames]
+        files = zip(filenames, file_ids)
+
+        file_id = request.args.get('file_id')
+        if file_id==None:
+            return render_template("visual.html", username=username, files=files)
+        else:
+            selected = get_filename(file_id)
+            selected=selected['filename']
+            return render_template("visual.html", username=username, files=files, selected=selected)
     return render_template("visual.html")
 
 @app.route("/upload", methods=['GET', 'POST'])
