@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id, get_filename
+from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id, get_filename, update_file
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -13,6 +13,16 @@ def file_type(filename):
         return True, extension
     else:
         return False, extension
+    
+@app.route("/check_duplicate", methods=["POST"])
+def check_duplicate():
+    if "username" not in session:
+        return {"error": "not logged in"}, 401
+
+    data = request.get_json()
+    filename = secure_filename(data.get("filename"))
+    user_files = get_files(session["username"])
+    return {"duplicate": filename in user_files}
 
 @app.route("/")
 def home():
@@ -86,31 +96,35 @@ def upload():
                     username = session['username']
                     user_files = get_files(username)
                     filename = secure_filename(file.filename)
-
-                    if filename in user_files and not override:
-                        # Ask for confirmation
-                        return render_template("upload.html", duplicate=True, filename=filename)
-
                     # Read content
                     file_content = file.read()
                     text_content = file_content.decode('utf-8')
                     header, entries = save_data(text_content, extension)
+                    # Bad data
                     if header is None or entries is None:
                         flash("Error parsing file. Check file format.", 'error')
                         return redirect(url_for('upload'))
+                    # Override old file
+                    elif filename in user_files and override:
+                        update_file(username, filename, header, entries)
+                        flash("File updated successfully.", "success")
+                        return redirect(url_for('upload'))
+                    elif filename in user_files and not override:
+                        flash("Override cancelled, please upload another file.", "error")
+                        return redirect(url_for('upload'))
+                    # Save file
+                    else:
+                        add_file(username, filename)
+                        add_file_table(username, filename, header, entries)
 
-                    # Save or override
-                    add_file(username, filename)
-                    add_file_table(username, filename, header, entries)
-
-                    flash("File uploaded successfully.", "success")
-                    return redirect(url_for('upload'))
+                        flash("File uploaded successfully.", "success")
+                        return redirect(url_for('upload'))
             else:
                 flash(f"Unsupported file format '.{extension}'. Only .csv or .json allowed.", 'error')
                 return redirect(url_for('upload'))
 
     if 'username' in session:
-        return render_template("upload.html", username=session['username'])
+        return render_template("upload.html", username=session['username'], duplicate=False)
     return render_template("upload.html")
 
 @app.route("/ml")

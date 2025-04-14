@@ -46,3 +46,6 @@ stanleyH -- 2025-4-10 4:40
 
 tahmimH, sashaM -- 2025-4-10 IN CLASS
   - droplet setup, visuals page
+
+stanleyH -- 2025-4-14 2:15
+  - file uploads can now be overridden

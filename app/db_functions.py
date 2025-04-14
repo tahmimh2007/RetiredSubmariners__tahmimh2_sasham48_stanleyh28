@@ -73,6 +73,19 @@ def add_file_table(username, filename, headers, data):
     conn.commit()
     conn.close()
 
+# Deletes old table
+def delete_table(username, filename):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    file_id = get_file_id(username, filename)
+    cur.execute(f"DROP TABLE IF EXISTS file{file_id};")
+    conn.commit()
+    conn.close()
+
+def update_file(username, filename, headers, data):
+    delete_table(username, filename)
+    add_file_table(username, filename, headers, data)
+
 #create new user
 def add_user(username, password):
     conn = get_db_connection()
