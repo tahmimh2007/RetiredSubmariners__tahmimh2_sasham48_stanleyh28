@@ -14,7 +14,6 @@ import io
 from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
-print("DB_PATH:", DB_PATH)
 
 # BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 # DB_DIR = os.path.join(BASE_DIR, "data")
@@ -175,17 +174,64 @@ def save_data(data, file_extension):
 def get_headers(file_id): ###should work
     conn = get_db_connection()
     cur = conn.cursor()
-    files = cur.execute(f"SELECT name FROM pragma_table_info('{file_id}')").fetchall()
+    headers = cur.execute(f"SELECT * FROM pragma_table_info('file{file_id}')").fetchall()
+    headers = [header['name'] for header in headers]
     conn.close()
-    return files
+    return headers
+
+def get_headers_float(file_id): ###returns numberical headers 
+    conn = get_db_connection()
+    cur = conn.cursor()
+    columns_info = cur.execute(f"PRAGMA table_info('file{file_id}')").fetchall()
+    column_names = [col[1] for col in columns_info]
+    headers = []
+
+    for col in column_names:
+        values = cur.execute(f"SELECT {col} FROM file{file_id}").fetchall()
+        values = [v[0] for v in values if v[0] is not None]
+
+        all_float = True
+        for val in values:
+            try:
+                float(val)
+            except (ValueError, TypeError):
+                all_float = False
+                break
+
+        if all_float and values: 
+            headers.append(col)
+    conn.close()
+    return headers
 
 def get_filename(file_id):
     conn = get_db_connection()
     cur = conn.cursor()
     filename = cur.execute("SELECT * FROM files WHERE file_id=?", (file_id,)).fetchone()
-    print(f'FILENAME{filename}')
     conn.close()
     return filename
+
+def get_x(file_id, field): #THIS MIGHT WORK I HAVENT TESTED IT YET
+    conn = get_db_connection()
+    cur = conn.cursor()
+    output = cur.execute(f"SELECT * FROM file{file_id}").fetchall()
+    try:
+        output = [float(out[field]) for out in output]
+    except (ValueError, TypeError):
+        output = [out[field] for out in output]
+    
+    conn.close()
+    return output
+
+def get_y(file_id, fields): #fields is a list, THIS MIGHT WORK I HAVENT TESTED IT YET
+    conn = get_db_connection()
+    cur = conn.cursor()
+    output = []
+    for field in fields:
+        temp = cur.execute(f"SELECT * FROM file{file_id}").fetchall()
+        temp = [float(t[field]) for t in temp]
+        output += [temp]
+    conn.close()
+    return output
 
 #registers a user
 def register_user():

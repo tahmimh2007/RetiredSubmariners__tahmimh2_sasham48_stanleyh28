@@ -36,35 +36,91 @@
     </ul>
   </nav>
   {% if username %}
-  {% if selected %}
-  {% else %}
-  <h3>Your Uploaded Files:</h3>
-  <ul>
-    {% for filename, file_id in files %}
-      <li><a href="{{ url_for('visual', file_id=file_id) }}">{{ filename }}</a></li>
-    {% endfor %}
-  </ul>
+    {% if selected %}
+    {% else %}
+    <h3>Your Uploaded Files:</h3>
+    <ul>
+      {% for filename, file_id in files %}
+        <li><a href="{{ url_for('visual', file_id=file_id) }}">{{ filename }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   {% endif %}
-  {% endif %}
   {% if selected %}
-  <h2>Visualize {{selected}}</h2>
-  <form id="chart-options">
-    <label>Graph Type:
+    <h2>Visualize {{ selected }}</h2>
+    <form id="chart-options" method="get" action="{{ url_for('visual') }}">
+      <input type="hidden" name="file_id" value="{{ request.args.get('file_id') }}">  
+
+      <label>Graph Type:</label>
       <select name="chartType">
         <option value="bar">Bar</option>
         <option value="line">Line</option>
         <option value="scatter">Scatter</option>
       </select>
-    </label><br>
-    <label>Fields to Plot:</label><br>
-    {% for header in headers %}
-      <input type="checkbox" name="fields" value="{{ header }}">{{ header }}<br>
-    {% endfor %}
-    <button type="submit">Generate Graph</button>
-  </form>
-  <div id="chart"></div>
+      <br><br>
+
+      <label>Select Independent Variable (X-axis):</label>
+      <select name="xField" required>
+        {% for header in headers %}
+          <option value="{{ header }}">{{ header }}</option>
+        {% endfor %}
+      </select>
+      <br><br>
+
+      <label>Select Dependent Variables (Y-axis):</label><br>
+      {% for header in headers2 %}
+        <input type="checkbox" name="fields" value="{{ header }}"> {{ header }}<br>
+      {% endfor %}
+
+      <br>
+      <button type="submit">Generate Graph</button>
+    </form>
+  {% elif graph %}
+    <h2>graph {{graph}}</h2>
+    <div id="chart"></div>
+    {% if graph == "bar" %}
+      <script>
+        const x = {{ x | tojson }};
+        const y_lists = {{ y_lists | tojson }};
+        const labels = {{ labels | tojson }};
+        const series = labels.map((label, i) => {
+          return {
+            name: label,
+            data: y_lists[i]
+          };
+        });
+        const options = {
+          chart: {
+            type: 'bar',
+            height: 400
+          },
+          series: series,
+          xaxis: {
+            categories: labels
+          },
+          plotOptions: {
+            bar: {
+              horizontal: false,
+              dataLabels: {
+                position: 'top'
+              }
+            }
+          },
+          dataLabels: {
+            enabled: true
+          },
+          title: {
+            text: 'Bar Chart Visualization',
+            align: 'center'
+          }
+        };
+        const chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+      </script>
+    {% endif %}
+
   {% else %}
-  <h2>SELECT A FILE</h2>
+    <h2>SELECT A FILE</h2>
   {% endif %}
 </body>
 </html>

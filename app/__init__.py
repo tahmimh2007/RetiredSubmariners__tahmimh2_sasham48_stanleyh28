@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id, get_filename, update_file
+from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id, get_filename, update_file, get_headers, get_x, get_y, get_headers_float
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -78,10 +78,28 @@ def visual():
         if file_id==None:
             return render_template("visual.html", username=username, files=files)
         else:
-            selected = get_filename(file_id)
-            selected=selected['filename']
-            return render_template("visual.html", username=username, files=files, selected=selected)
+            chartType = request.args.get('chartType')
+            if chartType==None:
+                selected = get_filename(file_id)
+                selected=selected['filename']
+                headers= get_headers(file_id)
+                headers2 = get_headers_float(file_id)
+                return render_template("visual.html", username=username, files=files, selected=selected, headers=headers, headers2=headers2)
+            else:
+                filename = get_filename(file_id)
+                filename=filename['filename']
+                xField = request.args.get('xField')
+                fields = request.args.getlist('fields')
+                graph = chartType
+                x = get_x(file_id, xField)
+                y_lists = get_y(file_id, fields)
+                labels = [xField] + fields
+
+                return render_template("visual.html", graph = graph, x=x, y_lists=y_lists, labels=labels)
+        
     return render_template("visual.html")
+
+
 
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
