@@ -49,3 +49,6 @@ tahmimH, sashaM -- 2025-4-10 IN CLASS
 
 stanleyH -- 2025-4-14 2:15
   - file uploads can now be overridden
+
+sashaM -- 2025-4-16 17:30
+  - half working bar graph functionality
