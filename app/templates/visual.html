@@ -168,6 +168,134 @@
         document.body.removeChild(link);
       }
     </script>
+  {% elif graph == "line" %}
+    <div id="chart"></div>
+
+    <script>
+      const raw_x = {{ x | tojson }};
+      const y_lists = {{ y_lists | tojson }};
+      const y_labels = {{ labels | tojson }};
+      
+      const isNumeric = raw_x.every(x => !isNaN(x));
+
+      let series;
+
+      if (isNumeric) {
+        const indices = raw_x
+          .map((x, i) => ({ x, i }))
+          .sort((a, b) => a.x - b.x)
+          .map(obj => obj.i);
+
+        series = y_lists.map((y_list, s_idx) => ({
+          name: y_labels[s_idx],
+          data: indices.map(i => ({
+            x: raw_x[i],
+            y: y_list[i]
+          }))
+        }));
+      } else {
+        series = y_lists.map((y_vals, i) => ({
+          name: y_labels[i],
+          data: y_vals
+        }));
+      }
+    
+      const options = {
+        chart: {
+          type: 'line',
+          height: 350
+        },
+        xaxis: {
+          type: isNumeric ? 'numeric' : 'category',
+        },
+        yaxis: {
+          title: { text: 'Values' }
+        },
+        stroke: {
+          curve: 'smooth',
+          width: 2
+        },
+        markers: {
+          size: 4
+        },
+        tooltip: {
+          shared: true,
+          intersect: false
+        },
+        series: series
+      };
+    
+      const chart = new ApexCharts(document.querySelector("#chart"), options);
+      chart.render();
+    </script>
+  {% elif graph == "scatter" %}
+  <div id="chart"></div>
+
+    <script>
+      const raw_x = {{ x | tojson }};
+      const y_lists = {{ y_lists | tojson }};
+      const y_labels = {{ labels | tojson }};
+      
+      const isNumeric = raw_x.every(x => !isNaN(x));
+
+      let series;
+
+      if (isNumeric) {
+        const indices = raw_x
+          .map((x, i) => ({ x, i }))
+          .sort((a, b) => a.x - b.x)
+          .map(obj => obj.i);
+
+        series = y_lists.map((y_list, s_idx) => ({
+          name: y_labels[s_idx],
+          data: indices.map(i => ({
+            x: raw_x[i],
+            y: y_list[i]
+          }))
+        }));
+      } else {
+        series = y_lists.map((y_vals, i) => ({
+          name: y_labels[i],
+          data: y_vals
+        }));
+      }
+
+      const options = {
+        chart: {
+          type: 'scatter',
+          height: 350,
+          zoom: {
+            enabled: true,
+            type: 'xy'
+          }
+        },
+        series: series,
+        xaxis: {
+          type: isNumeric ? 'numeric' : 'category',
+          title: {
+            text: "Genre"
+          }
+        },
+        yaxis: {
+          title: {
+            text: "Value"
+          }
+        },
+        markers: {
+          size: 6
+        },
+        tooltip: {
+          shared: false,
+          intersect: true
+        },
+        title: {
+          text: "Scatter Plot Example"
+        }
+      };
+
+      const chart = new ApexCharts(document.querySelector("#chart"), options);
+      chart.render();
+    </script>
   {% elif graph %}
     <!-- Placeholder for other chart types if needed -->
     <h2>Graph "{{ graph }}" is not yet implemented.</h2>
