@@ -52,3 +52,6 @@ stanleyH -- 2025-4-14 2:15
 
 sashaM -- 2025-4-16 17:30
   - half working bar graph functionality
+
+stanleyH -- 2025-4-16 23:34
+  - charts now in scrollabble window
