@@ -111,7 +111,6 @@
         name: label,
         data: y_lists[i]
       }));
-
       const options = {
         chart: {
           type: 'bar',
@@ -120,10 +119,10 @@
         },
         series: series,
         xaxis: {
-          
+          categories: x,
           title: {
             text: 'Independent Variable'
-          }
+          },
         },
         yaxis: {
           title: {
