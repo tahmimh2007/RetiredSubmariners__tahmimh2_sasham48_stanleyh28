@@ -78,6 +78,7 @@
           <li><a href="{{ url_for('visual', file_id=file_id) }}">{{ filename }}</a></li>
         {% endfor %}
       </ul>
+      <h2>SELECT A FILE</h2>
     {% endif %}
   {% endif %}
 
@@ -311,7 +312,7 @@
     <!-- Placeholder for other chart types if needed -->
     <h2>Graph "{{ graph }}" is not yet implemented.</h2>
   {% else %}
-    <h2>SELECT A FILE</h2>
+    
   {% endif %}
 
 </body>
