@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <title>ML Analysis - Submarine Charts</title>
-  <script src="/static/js/ml.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
@@ -34,18 +35,119 @@
         {% endif %}
     </ul>
   </nav>
-  <h2>Machine Learning Model</h2>
-  <form method="POST">
-    <label>Select Target Variable:</label><br>
-    {% for header in headers %}
-      <input type="radio" name="target" value="{{ header }}"> {{ header }}<br>
-    {% endfor %}
-    <button type="submit">Train Model</button>
-  </form>
-  {% if results %}
-    <h3>Model Results</h3>
-    <pre>{{ results }}</pre>
-    <div id="ml-chart"></div>
+  <h2>Machine Learning Model -- UMAP Unsupervised Learning Model</h2>
+  {% if username %}
+    {% if selected %}
+      <!-- Form to generate chart -->
+      <div class="form-section">
+        <h2>Model for {{ selected }}</h2>
+        <form id="chart-options" method="get" action="{{ url_for('ml') }}">
+          <input type="hidden" name="file_id" value="{{ request.args.get('file_id') }}">
+
+          <label>Results Complexity:</label>
+          <select name="chartType">
+            <option value="twod">2D</option>
+            <option value="threed">3D</option>
+          </select>
+          <br><br>
+
+          <label>Select Categorization Variable:</label>
+          <select name="xField" required>
+            {% for header in headers %}
+              <option value="{{ header }}">{{ header }}</option>
+            {% endfor %}
+          </select>
+          <br><br>
+
+          <label>Select Variables to Train:</label><br>
+          {% for header in headers2 %}
+            <input type="checkbox" name="fields" value="{{ header }}"> {{ header }}<br>
+          {% endfor %}
+
+          <br>
+          <button type="submit">Generate</button>
+        </form>
+      </div>
+    {% else %}
+      <!-- File selector if no file is selected yet -->
+      <h3>Your Uploaded Files:</h3>
+      <ul>
+        {% for filename, file_id in files %}
+          <li><a href="{{ url_for('ml', file_id=file_id) }}">{{ filename }}</a></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endif %}
+
+  {% if graph == "twod" %}
+      <div id="chart"></div>
+      <script>
+        const classifiers = {{ x | tojson }};
+        const coordinates = {{ y_lists | tojson }};
+        
+        const categoryMap = {};
+
+        coordinates.forEach((coord, index) => {
+          const category = classifiers[index];
+          if (!categoryMap[category]) {
+            categoryMap[category] = [];
+          }
+          categoryMap[category].push({ x: coord[0], y: coord[1] });
+        });
+
+        const series = Object.keys(categoryMap).map(category => ({
+          name: category,
+          data: categoryMap[category]
+        }));
+
+        const options = {
+          chart: {
+            type: 'scatter',
+            height: 500,
+            width: 500,
+            zoom: { enabled: true, type: 'xy' },
+            toolbar: { show: true }
+          },
+          grid: {
+            show: true,
+            xaxis: {
+              lines: { show: true }
+            },
+            yaxis: {
+              lines: { show: true }
+            }
+          },
+          xaxis: {
+            tickAmount: 10,
+            labels: { show: true }
+          },
+          yaxis: {
+            tickAmount: 10,
+            labels: {
+              show: true,
+              formatter: function(value) {
+                return value.toFixed(1);
+              }
+            }
+          },
+          series: series,
+          markers: {
+            size: 6
+          },
+          legend: {
+            position: 'top'
+          }
+        };
+
+        const chart = new ApexCharts(document.querySelector("#chart"), options);
+        chart.render();
+
+      </script>
+  {% elif graph %}
+    <!-- Placeholder for other chart types if needed -->
+    <h2>Graph "{{ graph }}" is not yet implemented.</h2>
+  {% else %}
+    <h2>SELECT A FILE</h2>
   {% endif %}
 </body>
 </html>

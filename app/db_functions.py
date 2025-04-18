@@ -203,6 +203,30 @@ def get_headers_float(file_id): ###returns numberical headers
     conn.close()
     return headers
 
+def get_headers_nonfloat(file_id):  ### returns non-numerical headers
+    conn = get_db_connection()
+    cur = conn.cursor()
+    columns_info = cur.execute(f"PRAGMA table_info('file{file_id}')").fetchall()
+    column_names = [col[1] for col in columns_info]
+    headers = []
+
+    for col in column_names:
+        values = cur.execute(f"SELECT {col} FROM file{file_id}").fetchall()
+        values = [v[0] for v in values if v[0] is not None]
+
+        all_float = True
+        for val in values:
+            try:
+                float(val)
+            except (ValueError, TypeError):
+                all_float = False
+                break
+
+        if not all_float and values:
+            headers.append(col)
+    conn.close()
+    return headers
+
 def get_filename(file_id):
     conn = get_db_connection()
     cur = conn.cursor()
