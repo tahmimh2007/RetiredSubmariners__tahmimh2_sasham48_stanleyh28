@@ -66,3 +66,6 @@ stanleyH -- 2025-4-19 12:26
   - search bar for files, standardized styling, anonymous users can now use
   - users can now update the graph in real time without having to refresh (maybe add smth to let them change files)
   - fixed some other random bugs
+
+sashaM -- 2025-4-19 17:30
+  - manually selecting headings for files
