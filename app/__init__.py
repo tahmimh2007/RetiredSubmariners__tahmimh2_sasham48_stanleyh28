@@ -1,5 +1,5 @@
 from flask import Flask, render_template, flash, request, redirect, url_for, session
-from db_functions import register_user, login_user, create_tables, save_data, add_file_table, add_file, get_files, get_file_id, get_filename, update_file, get_headers, get_x, get_y, get_headers_float, get_headers_nonfloat
+from db_functions import * #imports all of them :3
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
@@ -63,7 +63,6 @@ def logout():
 def register():
     if request.method == "POST":
         result = register_user()
-        # print(result)
         if result == "success":
             flash("Registration successful! Please log in.", "success")
             return redirect(url_for("login"))
@@ -169,6 +168,7 @@ def visual():
 def upload():
     if request.method == 'POST':
         file = request.files['file']
+        am = request.form.get('heading_option')
         override = request.form.get('override', 'false') == 'true'
 
         if file:
@@ -181,7 +181,12 @@ def upload():
                     # Read content
                     file_content = file.read()
                     text_content = file_content.decode('utf-8')
-                    header, entries = save_data(text_content, extension)
+                    if am == 'auto':
+                        header, entries = save_data(text_content, extension)
+                    else:
+                        headings = request.form.get('manual_headings')
+                        header, entries = save_data_manual(text_content, extension, headings)
+                        
                     # Bad data
                     if header is None or entries is None:
                         flash("""Error parsing file. Check file format. Be sure to label your actual data as 'data' if json file is in format '{'headers': {...}, 'data': {...}}'""", 'error')
@@ -206,7 +211,11 @@ def upload():
                     # Read content
                     file_content = file.read()
                     text_content = file_content.decode('utf-8')
-                    header, entries = save_data(text_content, extension)
+                    if am == 'auto':
+                        header, entries = save_data(text_content, extension)
+                    else:
+                        headings = request.form.get('manual_headings')
+                        header, entries = save_data_manual(text_content, extension, headings)
                     # Bad data
                     if header is None or entries is None:
                         flash("""Error parsing file. Check file format. Be sure to label your actual data as 'data' if json file is in format '{'headers': {...}, 'data': {...}}'""", 'error')
@@ -275,7 +284,59 @@ def ml():
                 transformed = transformed.tolist()
 
                 return render_template("ml.html", graph = graph, x=x, y_lists=transformed, labels=labels)
+    else: #anon
+        chartType = request.args.get('chartType')
+        if chartType is None:
+            if 'filename' in session:
+                return render_template(
+                    "ml.html",
+                    selected=session['filename'],
+                    headers=session['header'],
+                    headers2=session['headers2']
+                )
+            else:
+                return render_template('ml.html')
+        xField = request.args.get('xField')
+        fields = request.args.getlist('fields')
+        graph  = chartType
+
+        headers = session['header']    
+        entries = session['entries']    
+        idx_map = { h:i for i,h in enumerate(headers) }
+
+        # extract x values
+        xi = idx_map[xField]
+        x = []
+        for row in entries:
+            v = row[xi]
+            try:
+                x.append(float(v))
+            except (ValueError, TypeError):
+                x.append(v)
+
+        # extract each y‑column into its own list
+        y_lists = []
+        for f in fields:
+            fi = idx_map[f]
+            col = []
+            for row in entries:
+                v = row[fi]
+                try:
+                    col.append(float(v))
+                except (ValueError, TypeError):
+                    col.append(v)
+            y_lists.append(col)
+
+        labels = [xField] + fields
+        y_lists = np.array(y_lists)
+        y_lists = np.rot90(y_lists)
+        reducer = umap.UMAP(n_components=2, random_state=42)
+        transformed = reducer.fit_transform(y_lists)
+        transformed = transformed.tolist()
         
+        return render_template(
+            "ml.html", headers=headers, headers2=session['headers2'], selected=session['filename'], graph = graph, x=x, y_lists=transformed, labels=labels
+        )
     return render_template("ml.html")
 
 @app.route("/file_list")

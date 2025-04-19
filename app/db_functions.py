@@ -185,6 +185,67 @@ def save_data(data, file_extension):
         return save_csv_data(data)
     elif file_extension == 'json':
         return save_json_data(data)
+    
+
+
+def splice_headings(headings):
+    return[h.strip() for h in headings.split(',') if h.strip()]
+
+# For csv files (manual)
+def save_csv_data_manual(data, headings):
+    try:
+        # Converts string to csv format
+        csv_file = io.StringIO(data)
+        csv_data = csv.reader(csv_file)
+        col_count = len(next(csv_data, []))
+        header = splice_headings(headings)
+        if len(header)!=col_count:
+            flash("Invalid heading format for this csv!", 'error')
+            return None, None 
+        csv_data = csv.reader(csv_file)
+        entries = [row for row in csv_data]
+        return header, entries
+    except:
+        flash("File is not valid CSV!", 'error')
+        return None, None
+
+# For json files (manual)
+def save_json_data_manual(data, headings):
+    try:
+        # Not in list format yet
+        if data[0] != '[':
+            # in format {...}, {...}, etc
+            if re.findall('''["']data["']:''', data) == []:
+                data_list = f'''[{', '.join(data.split('\n')).strip()[:-1]}]'''
+                json_data = json.loads(data_list)
+            # in format {'headers': {...}, 'data': {...}}
+            else:
+                json_data = json.loads(data)['data']
+                print(json_data)
+        # Converts string to json format
+        else:
+            json_data = json.loads(data)
+        # print(json_data)
+        # print(json_data[0])
+        # print(json_data[0].keys())
+        header = headings
+        if json_data and len(header) != len(json_data[0]):
+            return None, None
+        # print(header)
+        entries = [[item[key] for key in header] for item in json_data]
+        return header, entries
+    except:
+        return None, None
+
+# Returns headers and entries of uploaded file to save (manual)
+def save_data_manual(data, file_extension, headings):
+    if file_extension == 'csv':
+        return save_csv_data_manual(data, headings)
+    elif file_extension == 'json':
+        return save_json_data_manual(data, headings)
+
+
+
 
 def get_headers(file_id): ###should work
     conn = get_db_connection()
