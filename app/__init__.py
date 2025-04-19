@@ -3,6 +3,8 @@ from db_functions import register_user, login_user, create_tables, save_data, ad
 import os
 from os.path import join, dirname, abspath
 from werkzeug.utils import secure_filename
+import umap
+import numpy as np
 
 
 app = Flask(__name__)
@@ -176,9 +178,6 @@ def ml():
                 x = get_x(file_id, xField)
                 y_lists = get_y(file_id, fields)
                 labels = [xField] + fields
-                import umap
-                import numpy as np
-                print('imported umap and numpy :3')
                 y_lists = np.array(y_lists)
                 y_lists = np.rot90(y_lists)
                 reducer = umap.UMAP(n_components=2, random_state=42)
