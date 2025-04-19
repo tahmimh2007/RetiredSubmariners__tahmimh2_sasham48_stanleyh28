@@ -60,7 +60,7 @@ def logout():
 def register():
     if request.method == "POST":
         result = register_user()
-        print(result)
+        # print(result)
         if result == "success":
             flash("Registration successful! Please log in.", "success")
             return redirect(url_for("login"))
@@ -101,11 +101,64 @@ def visual():
                 labels = [xField] + fields
 
                 return render_template("visual.html", username=username, selected=filename, headers=headers, headers2=headers2, graph = graph, x=x, y_lists=y_lists, labels=labels)
-        
-    return render_template("visual.html")
+    else:
+        chartType = request.args.get('chartType')
+        # For anonymous users
+        if chartType is None:
+            if 'filename' in session:
+                return render_template(
+                    "visual.html",
+                    selected=session['filename'],
+                    headers=session['header'],
+                    headers2=session['headers2']
+                )
+            else:
+                return render_template('visual.html')
 
+        xField = request.args.get('xField')
+        fields = request.args.getlist('fields')
+        graph  = chartType
 
+        headers = session['header']    
+        entries = session['entries']    
+        idx_map = { h:i for i,h in enumerate(headers) }
 
+        # extract x values
+        xi = idx_map[xField]
+        x = []
+        for row in entries:
+            v = row[xi]
+            try:
+                x.append(float(v))
+            except (ValueError, TypeError):
+                x.append(v)
+
+        # extract each y‑column into its own list
+        y_lists = []
+        for f in fields:
+            fi = idx_map[f]
+            col = []
+            for row in entries:
+                v = row[fi]
+                try:
+                    col.append(float(v))
+                except (ValueError, TypeError):
+                    col.append(v)
+            y_lists.append(col)
+
+        labels = [xField] + fields
+
+        return render_template(
+            "visual.html",
+            selected=session['filename'],
+            headers=headers,
+            headers2=session['headers2'],
+            graph=graph,
+            x=x,
+            y_lists=y_lists,
+            labels=labels
+        )
+    
 @app.route("/upload", methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
@@ -142,6 +195,34 @@ def upload():
 
                         flash("File uploaded successfully.", "success")
                         return redirect(url_for('upload'))
+                else:
+                    filename = secure_filename(file.filename)
+                    # Read content
+                    file_content = file.read()
+                    text_content = file_content.decode('utf-8')
+                    header, entries = save_data(text_content, extension)
+                    # Bad data
+                    if header is None or entries is None:
+                        flash("""Error parsing file. Check file format. Be sure to label your actual data as 'data' if json file is in format '{'headers': {...}, 'data': {...}}'""", 'error')
+                        return redirect(url_for('upload'))
+                    else:
+                        session['filename'] = filename
+                        session['header'] = header
+                        session['entries'] = entries
+                        organized_entries = [list(col) for col in zip(*entries)]
+                        headers2 = []
+                        for label, entry in zip(header, organized_entries):
+                            all_float = True
+                            for i in entry:
+                                try:
+                                    float(i)
+                                except (ValueError, TypeError):
+                                    all_float = False
+                                    break
+                            if all_float == True:
+                                headers2.append(label)
+                        session['headers2'] = headers2      
+                        return render_template("visual.html", selected=filename, headers=header, headers2=headers2)
             else:
                 flash(f"Unsupported file format '.{extension}'. Only .csv or .json allowed.", 'error')
                 return redirect(url_for('upload'))
