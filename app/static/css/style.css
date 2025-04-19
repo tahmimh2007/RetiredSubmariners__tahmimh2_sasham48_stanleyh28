@@ -342,4 +342,3 @@ body {
 }
 .file-list a[data-filetype="csv"]::before{ content:"📊"; }
 .file-list a[data-filetype="json"]::before{content:"🗂"; }
-

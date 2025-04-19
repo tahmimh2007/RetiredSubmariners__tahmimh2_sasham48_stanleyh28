@@ -40,7 +40,9 @@
   <body>
     {% if username %}
       <h2>Hello {{username }}</h2>
-      <button class="btn btn-primary" type="submit"><a href="/upload">Upload New File</a></button>
+      <a href="/upload" style="text-decoration: none;">
+        <button class="btn btn-primary">Upload New File</button>
+      </a>      
 
       {% if files %}
         <!-- Search bar + file display -->

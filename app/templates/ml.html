@@ -89,8 +89,10 @@
         </div>
       {% else %}
         <!-- If no files ask user to upload one -->
-        <h2>Upload a dataset to analyze</h2>
-        <button class="btn btn-primary" type="submit"><a href="{{ url_for('upload', username=username) }}">Upload dataset</a></button>
+        <h2>Upload a dataset to analyze</h2>  
+        <a href="{{ url_for('upload', username=username) }}" style="text-decoration: none;">
+          <button class="btn btn-primary" type="submit">Upload dataset</button>
+        </a>
       {% endif %}
     {% endif %}
   {% endif %}
