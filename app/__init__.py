@@ -89,6 +89,8 @@ def visual():
             else:
                 filename = get_filename(file_id)
                 filename=filename['filename']
+                headers= get_headers(file_id)
+                headers2 = get_headers_float(file_id)
                 xField = request.args.get('xField')
                 fields = request.args.getlist('fields')
                 graph = chartType
@@ -96,7 +98,7 @@ def visual():
                 y_lists = get_y(file_id, fields)
                 labels = [xField] + fields
 
-                return render_template("visual.html", graph = graph, x=x, y_lists=y_lists, labels=labels)
+                return render_template("visual.html", username=username, selected=filename, headers=headers, headers2=headers2, graph = graph, x=x, y_lists=y_lists, labels=labels)
         
     return render_template("visual.html")
 
