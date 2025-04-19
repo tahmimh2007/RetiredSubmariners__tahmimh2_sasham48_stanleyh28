@@ -11,6 +11,7 @@ from flask import session, request, flash
 import csv, json
 import os
 import io
+import re
 from werkzeug.security import generate_password_hash, check_password_hash
 
 DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'database.db')
@@ -155,13 +156,27 @@ def save_csv_data(data):
 # For json files
 def save_json_data(data):
     try:
+        # Not in list format yet
+        if data[0] != '[':
+            # in format {...}, {...}, etc
+            if re.findall('''["']data["']:''', data) == []:
+                data_list = f'''[{', '.join(data.split('\n')).strip()[:-1]}]'''
+                json_data = json.loads(data_list)
+            # in format {'headers': {...}, 'data': {...}}
+            else:
+                json_data = json.loads(data)['data']
+                print(json_data)
         # Converts string to json format
-        json_data = json.loads(data)
+        else:
+            json_data = json.loads(data)
+        # print(json_data)
+        # print(json_data[0])
+        # print(json_data[0].keys())
         header = list(json_data[0].keys()) if json_data else []
+        # print(header)
         entries = [[item[key] for key in header] for item in json_data]
         return header, entries
     except:
-        flash("File is not valid JSON!", 'error')
         return None, None
 
 # Returns headers and entries of uploaded file to save

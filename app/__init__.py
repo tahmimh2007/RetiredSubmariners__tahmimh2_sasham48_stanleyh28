@@ -121,7 +121,7 @@ def upload():
                     header, entries = save_data(text_content, extension)
                     # Bad data
                     if header is None or entries is None:
-                        flash("Error parsing file. Check file format.", 'error')
+                        flash("""Error parsing file. Check file format. Be sure to label your actual data as 'data' if json file is in format '{'headers': {...}, 'data': {...}}'""", 'error')
                         return redirect(url_for('upload'))
                     # Override old file
                     elif filename in user_files and override:
