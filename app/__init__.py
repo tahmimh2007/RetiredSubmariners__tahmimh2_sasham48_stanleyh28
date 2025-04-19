@@ -34,7 +34,10 @@ def home():
         filenames = get_files(username)
         file_ids = [get_file_id(username, file) for file in filenames]
         files = zip(filenames, file_ids)
-        return render_template("home.html", username=username, files=files)
+        if len(filenames) > 0:
+            return render_template("home.html", username=username, files=files)
+        else:
+            return render_template("home.html", username=username)
     return render_template("home.html")
 
 # Handles user login
@@ -79,7 +82,10 @@ def visual():
 
         file_id = request.args.get('file_id')
         if file_id==None:
-            return render_template("visual.html", username=username, files=files)
+            if len(filenames) > 0:
+                return render_template("visual.html", username=username, files=files)
+            else:
+                return render_template("visual.html", username=username)
         else:
             chartType = request.args.get('chartType')
             if chartType==None:
@@ -241,7 +247,10 @@ def ml():
 
         file_id = request.args.get('file_id')
         if file_id==None:
-            return render_template("ml.html", username=username, files=files)
+            if len(filenames) > 0:
+                return render_template("ml.html", username=username, files=files)
+            else:
+                return render_template("ml.html", username=username)
         else:
             chartType = request.args.get('chartType')
             if chartType==None:

@@ -69,23 +69,29 @@
         </form>
       </div>
     {% else %}
-      <h2>Select which dataset you'd like to look at: </h2>
-      <!-- Search + file list (unchanged) -->
-      <div class="search-container">
-        <input type="text" id="file-search" placeholder="Search files…">
-      </div>
+      {% if files %}
+        <h2>Select which dataset you'd like to look at: </h2>
+        <!-- Search + file list (unchanged) -->
+        <div class="search-container">
+          <input type="text" id="file-search" placeholder="Search files…">
+        </div>
 
-      <h3>Your Uploaded Files:</h3>
-      <div class="file-window">
-        <ul class="file-list">
-          {% for filename, file_id in files %}
-            <li>
-              <a href="{{ url_for('ml', file_id=file_id) }}"
-                data-filetype="{{ filename.rsplit('.',1)[1] }}">{{ filename }}</a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+        <h3>Your Uploaded Files:</h3>
+        <div class="file-window">
+          <ul class="file-list">
+            {% for filename, file_id in files %}
+              <li>
+                <a href="{{ url_for('ml', file_id=file_id) }}"
+                  data-filetype="{{ filename.rsplit('.',1)[1] }}">{{ filename }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <!-- If no files ask user to upload one -->
+        <h2>Upload a dataset to analyze</h2>
+        <button class="btn btn-primary" type="submit"><a href="{{ url_for('upload', username=username) }}">Upload dataset</a></button>
+      {% endif %}
     {% endif %}
   {% endif %}
 

@@ -42,22 +42,27 @@
       <h2>Hello {{username }}</h2>
       <button class="btn btn-primary" type="submit"><a href="/upload">Upload New File</a></button>
 
-      <!-- Search bar + file display -->
-      <div class="search-container">
-        <input type="text" id="file-search" placeholder="Search files…">
-      </div>
+      {% if files %}
+        <!-- Search bar + file display -->
+        <div class="search-container">
+          <input type="text" id="file-search" placeholder="Search files…">
+        </div>
 
-      <h3>Your Uploaded Files:</h3>
-      <div class="file-window">
-        <ul class="file-list">
-          {% for filename, file_id in files %}
-            <li>
-              <a href="{{ url_for('visual', file_id=file_id) }}"
-                data-filetype="{{ filename.rsplit('.',1)[1] }}">{{ filename }}</a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+        <h3>Your Uploaded Files:</h3>
+        <div class="file-window">
+          <ul class="file-list">
+            {% for filename, file_id in files %}
+              <li>
+                <a href="{{ url_for('visual', file_id=file_id) }}"
+                  data-filetype="{{ filename.rsplit('.',1)[1] }}">{{ filename }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <!-- If no files ask user to upload one -->
+        <h2>You currently don't have any files uploaded! Upload one to get started!</h2>
+      {% endif %}
     {% else %}
       <h2>Welcome to RetiredSubmarine Charts</h2>
       <p>To save your data, please log in.</p>
