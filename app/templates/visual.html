@@ -2,317 +2,124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Visualize - Submarine Charts</title>
+  <title>Visualize ‑ Submarine Charts</title>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body class="container mt-4">
-
-  <!-- Flash Messages -->
-  <header>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="flash-messages">
-          {% for category, message in messages %}
-            <div class="flash-message {{ category }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-  </header>
-
-  <!-- Navbar -->
-  <nav class="navbar">
-    <ul>
-      <li><a href="{{ url_for('home') }}">Home🏠</a></li>
-      <li><a href="{{ url_for('upload') }}">Upload📁</a></li>
-      <li><a href="{{ url_for('visual') }}">Visual👀</a></li>
-      <li><a href="{{ url_for('ml') }}">AI Model⚙️</a></li>
-      {% if username %}
-        <div class="welcome-container">
-          <span class="welcome-message">Welcome, {{ username }}!</span>
-          <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
-        </div>
-      {% endif %}
-    </ul>
-  </nav>
-
-  {% if username %}
-    {% if selected %}
-      <!-- Form to generate chart -->
-      <div class="form-section">
-        <h2>Visualize {{ selected }}</h2>
-        <form id="chart-options" method="get" action="{{ url_for('visual') }}">
-          <input type="hidden" name="file_id" value="{{ request.args.get('file_id') }}">
-
-          <label>Graph Type:</label>
-          <select name="chartType">
-            <option value="bar">Bar</option>
-            <option value="line">Line</option>
-            <option value="scatter">Scatter</option>
-          </select>
-          <br><br>
-
-          <label>Select Independent Variable (X-axis):</label>
-          <select name="xField" required>
-            {% for header in headers %}
-              <option value="{{ header }}">{{ header }}</option>
-            {% endfor %}
-          </select>
-          <br><br>
-
-          <label>Select Dependent Variables (Y-axis):</label><br>
-          {% for header in headers2 %}
-            <input type="checkbox" name="fields" value="{{ header }}"> {{ header }}<br>
-          {% endfor %}
-
-          <br>
-          <button type="submit">Generate Graph</button>
-        </form>
+<header>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
       </div>
-    {% else %}
-      <!-- File selector if no file is selected yet -->
-      <h3>Your Uploaded Files:</h3>
-      <ul>
+    {% endif %}
+  {% endwith %}
+</header>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <ul>
+    <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+    <li><a href="{{ url_for('upload') }}">Upload📁</a></li>
+    <li><a href="{{ url_for('visual') }}">Visual👀</a></li>
+    <li><a href="{{ url_for('ml') }}">AI Model⚙️</a></li>
+    {% if username %}
+      <div class="welcome-container">
+        <span class="welcome-message">Welcome, {{ username }}!</span>
+        <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+      </div>
+    {% endif %}
+  </ul>
+</nav>
+
+{% if username %}
+  {% if selected %}
+    <!-- chart-options form (unchanged) -->
+    <div class="form-section">
+      <h2>Visualize {{ selected }}</h2>
+      <form id="chart-options" method="get" action="{{ url_for('visual') }}">
+        <input type="hidden" name="file_id" value="{{ request.args.get('file_id') }}">
+
+        <label>Graph Type:</label>
+        <select name="chartType">
+          <option value="bar">Bar</option>
+          <option value="line">Line</option>
+          <option value="scatter">Scatter</option>
+        </select>
+        <br><br>
+
+        <label>Select Independent Variable (X‑axis):</label>
+        <select name="xField" required>
+          {% for header in headers %}
+            <option value="{{ header }}">{{ header }}</option>
+          {% endfor %}
+        </select>
+        <br><br>
+
+        <label>Select Dependent Variables (Y‑axis):</label><br>
+        {% for header in headers2 %}
+          <input type="checkbox" name="fields" value="{{ header }}"> {{ header }}<br>
+        {% endfor %}
+
+        <br>
+        <button type="submit">Generate Graph</button>
+      </form>
+    </div>
+  {% else %}
+    <h2>Select a file to display: </h2>
+    <!-- Search + file list (unchanged) -->
+    <div class="search-container">
+      <input type="text" id="file-search" placeholder="Search files…">
+    </div>
+
+    <h3>Your Uploaded Files:</h3>
+    <div class="file-window">
+      <ul class="file-list">
         {% for filename, file_id in files %}
-          <li><a href="{{ url_for('visual', file_id=file_id) }}">{{ filename }}</a></li>
+          <li>
+            <a href="{{ url_for('visual', file_id=file_id) }}"
+               data-filetype="{{ filename.rsplit('.',1)[1] }}">{{ filename }}</a>
+          </li>
         {% endfor %}
       </ul>
-      <h2>SELECT A FILE</h2>
-    {% endif %}
+    </div>
   {% endif %}
+{% endif %}
 
-  {% if graph == "bar" %}
-    <!-- Chart UI -->
-    <div class="chart-header">
-      <h2 class="chart-title">Bar Chart Visualization</h2>
-      <div class="chart-menu-wrapper">
-        <div class="chart-menu">
-          <button class="download-btn">Download ⬇️</button>
-          <div class="dropdown-content">
-            <a href="#" onclick="downloadChart('png')">Download PNG</a>
-            <a href="#" onclick="downloadChart('svg')">Download SVG</a>
-            <a href="#" onclick="downloadCSV()">Download CSV</a>
-          </div>
-        </div>
+{% if graph %}
+<!-- expose globals for visual.js -->
+<script>
+  var graph   = "{{ graph }}";
+  var x       = {{ x | tojson }};
+  var y_lists = {{ y_lists | tojson }};
+  var labels  = {{ labels | tojson }};
+</script>
+
+<!-- unified chart UI -->
+<div class="chart-header">
+  <h2 class="chart-title">{{ graph|capitalize }} Chart Visualization</h2>
+  <div class="chart-menu-wrapper">
+    <div class="chart-menu">
+      <button class="download-btn">Download ⬇️</button>
+      <div class="dropdown-content">
+        <a href="#" onclick="downloadChart('png')">Download PNG</a>
+        <a href="#" onclick="downloadChart('svg')">Download SVG</a>
+        <a href="#" onclick="downloadCSV()">Download CSV</a>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="chart-scroll-container">
-      <div id="chart"></div>
-    </div>
-
-    <!-- Bar Chart Script -->
-    <script>
-      const x = {{ x | tojson }};
-      const y_lists = {{ y_lists | tojson }};
-      const labels = {{ labels | tojson }};
-      const series = labels.map((label, i) => ({
-        name: label,
-        data: y_lists[i]
-      }));
-      const options = {
-        chart: {
-          type: 'bar',
-          height: 400,
-          width: Math.max(800, x.length * 40),
-        },
-        series: series,
-        xaxis: {
-          categories: x,
-          title: {
-            text: 'Independent Variable'
-          },
-        },
-        yaxis: {
-          title: {
-            text: 'Dependent Variables'
-          }
-        },
-        plotOptions: {
-          bar: {
-            horizontal: false,
-            columnWidth: '20px'
-          }
-        },
-        dataLabels: {
-          enabled: true
-        },
-        title: {
-          text: 'Bar Graph'
-        }
-      };
-
-      const chart = new ApexCharts(document.querySelector("#chart"), options);
-      chart.render();
-
-      function downloadChart(format) {
-        chart.dataURI().then(({ imgURI, svgURI }) => {
-          const uri = format === "svg" ? svgURI : imgURI;
-          const ext = format === "svg" ? "svg" : "png";
-          const link = document.createElement('a');
-          link.download = `chart.${ext}`;
-          link.href = uri;
-          link.click();
-        });
-      }
-
-      function downloadCSV() {
-        const headers = ['{{ x_label }}', ...labels];
-        const rows = x.map((xVal, rowIndex) => {
-          const values = labels.map((_, i) => y_lists[i][rowIndex]);
-          return [xVal, ...values];
-        });
-
-        let csvContent = headers.join(",") + "\n";
-        csvContent += rows.map(r => r.join(",")).join("\n");
-
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        link.setAttribute("href", URL.createObjectURL(blob));
-        link.setAttribute("download", "chart.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    </script>
-  {% elif graph == "line" %}
-    <div id="chart"></div>
-
-    <script>
-      const raw_x = {{ x | tojson }};
-      const y_lists = {{ y_lists | tojson }};
-      const y_labels = {{ labels | tojson }};
-      
-      const isNumeric = raw_x.every(x => !isNaN(x));
-
-      let series;
-
-      if (isNumeric) {
-        const indices = raw_x
-          .map((x, i) => ({ x, i }))
-          .sort((a, b) => a.x - b.x)
-          .map(obj => obj.i);
-
-        series = y_lists.map((y_list, s_idx) => ({
-          name: y_labels[s_idx],
-          data: indices.map(i => ({
-            x: raw_x[i],
-            y: y_list[i]
-          }))
-        }));
-      } else {
-        series = y_lists.map((y_vals, i) => ({
-          name: y_labels[i],
-          data: y_vals
-        }));
-      }
-    
-      const options = {
-        chart: {
-          type: 'line',
-          height: 350
-        },
-        xaxis: {
-          type: isNumeric ? 'numeric' : 'category',
-        },
-        yaxis: {
-          title: { text: 'Dependent Variables' }
-        },
-        stroke: {
-          curve: 'smooth',
-          width: 2
-        },
-        markers: {
-          size: 4
-        },
-        tooltip: {
-          shared: true,
-          intersect: false
-        },
-        title: {
-          text: 'Line Graph'
-        },
-        series: series
-      };
-    
-      const chart = new ApexCharts(document.querySelector("#chart"), options);
-      chart.render();
-    </script>
-  {% elif graph == "scatter" %}
+<div class="chart-scroll-container">
   <div id="chart"></div>
+</div>
+{% endif %}
 
-    <script>
-      const raw_x = {{ x | tojson }};
-      const y_lists = {{ y_lists | tojson }};
-      const y_labels = {{ labels | tojson }};
-      
-      const isNumeric = raw_x.every(x => !isNaN(x));
-
-      let series;
-
-      if (isNumeric) {
-        const indices = raw_x
-          .map((x, i) => ({ x, i }))
-          .sort((a, b) => a.x - b.x)
-          .map(obj => obj.i);
-
-        series = y_lists.map((y_list, s_idx) => ({
-          name: y_labels[s_idx],
-          data: indices.map(i => ({
-            x: raw_x[i],
-            y: y_list[i]
-          }))
-        }));
-      } else {
-        series = y_lists.map((y_vals, i) => ({
-          name: y_labels[i],
-          data: y_vals
-        }));
-      }
-
-      const options = {
-        chart: {
-          type: 'scatter',
-          height: 350,
-          zoom: {
-            enabled: true,
-            type: 'xy'
-          }
-        },
-        series: series,
-        xaxis: {
-          type: isNumeric ? 'numeric' : 'category',
-          title: {
-            text: 'Independent Variable'
-          }
-        },
-        yaxis: {
-          title: {
-            text: 'Dependent Variables'
-          }
-        },
-        markers: {
-          size: 6
-        },
-        tooltip: {
-          shared: false,
-          intersect: true
-        },
-        title: {
-          text: "Scatter Plot"
-        }
-      };
-
-      const chart = new ApexCharts(document.querySelector("#chart"), options);
-      chart.render();
-    </script>
-  {% elif graph %}
-    <!-- Placeholder for other chart types if needed -->
-    <h2>Graph "{{ graph }}" is not yet implemented.</h2>
-  {% else %}
-    
-  {% endif %}
-
+<!-- scripts -->
+<script src="/static/js/index.js" defer></script>
+<script src="/static/js/visual.js" defer></script>
 </body>
 </html>

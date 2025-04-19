@@ -289,3 +289,55 @@ body {
   border: 1px solid #ccc;
   padding-bottom: 10px;
 }
+
+/* ───────── Search bar ───────── */
+.search-container{
+  margin:20px 0;
+  width:260px;
+}
+#file-search{
+  padding:6px 10px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  width:100%;
+}
+
+/* ───────── Scrollable file window ───────── */
+.file-window{
+  max-height:300px;          /* fixed window size */
+  overflow-y:auto;
+  border:1px solid #ccc;
+  border-radius:6px;
+  padding:4px 0;
+  width:260px;
+}
+.file-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.file-list li{ margin-bottom:4px; }
+
+/* ───────── File item style & hover highlight ───────── */
+.file-list a{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:4px;
+  text-decoration:none;
+  color:inherit;
+  transition:background .2s;
+}
+.file-list a:hover{
+  background:#eaeaea;        /* simple highlight, no pop‑out */
+}
+
+/* icons via pseudo‑element */
+.file-list a::before{
+  content: attr(data-filetype) " ";
+  width:18px; height:18px;
+  display:inline-block;
+}
+.file-list a[data-filetype="csv"]::before{ content:"📊"; }
+.file-list a[data-filetype="json"]::before{content:"🗂"; }

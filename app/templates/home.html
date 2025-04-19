@@ -1,62 +1,66 @@
 <!DOCTYPE html>
-<!--
-  RetiredSubmariners: Sasha M, Stanley H, Tahmim H
-  SoftDev
-  P04: SubmarineCharts
-  2025-04-21
-  Time Spent:
--->
+<!-- RetiredSubmariners: Sasha M • Stanley H • Tahmim H -->
 <html lang="en">
 <head>
-  <title>Dashboard - Submarine Charts</title>
+  <title>Dashboard ‑ Submarine Charts</title>
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <header>
-    <!-- Allows flashing messages in the html -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="flash-messages">
-            {% for category, message in messages %}
-                <div class="flash-message {{ category }}">{{ message }}</div>
-            {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-  </header>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <ul>
-        <li><a href="{{ url_for('home') }}">Home🏠</a></li>
-        <li><a href="{{ url_for('upload') }}">Upload📁</a></li>
-        <li><a href="{{ url_for('visual') }}">Visual👀</a></li>
-        <li><a href="{{ url_for('ml') }}">AI Model⚙️</a></li>
-        <!-- Username and signout button is signed in -->
-        {% if username %}
-            <div class="welcome-container">
-                <span class="welcome-message">Welcome, {{ username }}!</span>
-                <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
-            </div>
-        {% endif %}
-    </ul>
-  </nav>
-  <!-- If signed in will display balance, games, and transactions -->
-  {% if username %}
-    <h2>Hello</h2>
-    <a href="/upload">Upload New File</a>
-    <h3>Your Uploaded Files:</h3>
-    <ul>
+<header>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-messages">
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+</header>
+
+<nav class="navbar">
+  <ul>
+    <li><a href="{{ url_for('home') }}">Home🏠</a></li>
+    <li><a href="{{ url_for('upload') }}">Upload📁</a></li>
+    <li><a href="{{ url_for('visual') }}">Visual👀</a></li>
+    <li><a href="{{ url_for('ml') }}">AI Model⚙️</a></li>
+    {% if username %}
+      <div class="welcome-container">
+        <span class="welcome-message">Welcome, {{ username }}!</span>
+        <a href="{{ url_for('logout') }}" class="signout-btn">Sign Out</a>
+      </div>
+    {% endif %}
+  </ul>
+</nav>
+
+{% if username %}
+  <h2>Hello</h2>
+  <a href="/upload">Upload New File</a>
+
+  <!-- ── Search bar + scrollable list ── -->
+  <div class="search-container">
+    <input type="text" id="file-search" placeholder="Search files…">
+  </div>
+
+  <h3>Your Uploaded Files:</h3>
+  <div class="file-window">
+    <ul class="file-list">
       {% for filename, file_id in files %}
-        <li><a href="{{ url_for('visual', file_id=file_id) }}">{{ filename }}</a></li>
+        <li>
+          <a href="{{ url_for('visual', file_id=file_id) }}"
+             data-filetype="{{ filename.rsplit('.',1)[1] }}">{{ filename }}</a>
+        </li>
       {% endfor %}
     </ul>
-  <!-- For users not logged in -->
-  {% else %}
-    <h2>Welcome to RetiredSubmarine Charts</h2>
-    <p>To save your data, please log in.</p>
-    <div class="login-register-container">
-        <a href="{{ url_for('login') }}"><button>Go to Login</button></a>
-    </div>
-  {% endif %}
+  </div>
+{% else %}
+  <h2>Welcome to RetiredSubmarine Charts</h2>
+  <p>To save your data, please log in.</p>
+  <div class="login-register-container">
+    <a href="{{ url_for('login') }}"><button>Go to Login</button></a>
+  </div>
+{% endif %}
+
+<script src="/static/js/index.js" defer></script>
 </body>
 </html>

@@ -187,6 +187,20 @@ def ml():
         
     return render_template("ml.html")
 
+@app.route("/file_list")
+def file_list():
+    if 'username' in session:
+        username  = session['username']
+        filenames = get_files(username)
+        file_ids  = [get_file_id(username, f) for f in filenames]
+        return {"files": [
+            {"name": fn, "url": url_for('visual', file_id=fid)}
+            for fn, fid in zip(filenames, file_ids)
+        ]}
+    return {"files": []}
+
+
+
 if __name__ == "__main__":
     create_tables()  # Initialize database tables before starting the app
     app.run(host='0.0.0.0')
