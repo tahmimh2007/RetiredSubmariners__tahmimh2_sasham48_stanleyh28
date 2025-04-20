@@ -69,3 +69,7 @@ stanleyH -- 2025-4-19 12:26
 
 sashaM -- 2025-4-19 17:30
   - manually selecting headings for files
+
+stanleyH -- 2025-4-20 13:37
+  - fixed selecting headings messages
+  - allowed users to access ml without being logged in

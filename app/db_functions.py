@@ -200,14 +200,14 @@ def save_csv_data_manual(data, headings):
         col_count = len(next(csv_data, []))
         header = splice_headings(headings)
         if len(header)!=col_count:
-            flash("Invalid heading format for this csv!", 'error')
-            return None, None 
+            flash(f"Invalid number of headings for this csv! You have {col_count} columns but only {len(header)} headings!", 'error')
+            return None, None, False
         csv_data = csv.reader(csv_file)
         entries = [row for row in csv_data]
-        return header, entries
+        return header, entries, True
     except:
         flash("File is not valid CSV!", 'error')
-        return None, None
+        return None, None, False
 
 # For json files (manual)
 def save_json_data_manual(data, headings):
@@ -230,12 +230,13 @@ def save_json_data_manual(data, headings):
         # print(json_data[0].keys())
         header = headings
         if json_data and len(header) != len(json_data[0]):
-            return None, None
+            flash(f"Invalid number of headings for this csv! You have {len(json_data[0])} columns but only {len(header)} headings!", 'error')
+            return None, None, False
         # print(header)
         entries = [[item[key] for key in header] for item in json_data]
-        return header, entries
+        return header, entries, True
     except:
-        return None, None
+        return None, None, False
 
 # Returns headers and entries of uploaded file to save (manual)
 def save_data_manual(data, file_extension, headings):

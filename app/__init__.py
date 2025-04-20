@@ -185,8 +185,9 @@ def upload():
                         header, entries = save_data(text_content, extension)
                     else:
                         headings = request.form.get('manual_headings')
-                        header, entries = save_data_manual(text_content, extension, headings)
-                        
+                        header, entries, success = save_data_manual(text_content, extension, headings)
+                        if success == False:
+                            return redirect(url_for('upload'))
                     # Bad data
                     if header is None or entries is None:
                         flash("""Error parsing file. Check file format. Be sure to label your actual data as 'data' if json file is in format '{'headers': {...}, 'data': {...}}'""", 'error')
@@ -215,7 +216,9 @@ def upload():
                         header, entries = save_data(text_content, extension)
                     else:
                         headings = request.form.get('manual_headings')
-                        header, entries = save_data_manual(text_content, extension, headings)
+                        header, entries, success = save_data_manual(text_content, extension, headings)
+                        if success == False:
+                            return redirect(url_for('upload'))
                     # Bad data
                     if header is None or entries is None:
                         flash("""Error parsing file. Check file format. Be sure to label your actual data as 'data' if json file is in format '{'headers': {...}, 'data': {...}}'""", 'error')
@@ -284,9 +287,9 @@ def ml():
                 transformed = transformed.tolist()
 
                 return render_template("ml.html", graph = graph, x=x, y_lists=transformed, labels=labels)
-    else: #anon
+    else: #anonymous
         chartType = request.args.get('chartType')
-        if chartType is None:
+        if chartType == None:
             if 'filename' in session:
                 return render_template(
                     "ml.html",
@@ -296,48 +299,54 @@ def ml():
                 )
             else:
                 return render_template('ml.html')
-        xField = request.args.get('xField')
-        fields = request.args.getlist('fields')
-        graph  = chartType
+        else:
+            xField = request.args.get('xField')
+            fields = request.args.getlist('fields')
+            graph  = chartType
 
-        headers = session['header']    
-        entries = session['entries']    
-        idx_map = { h:i for i,h in enumerate(headers) }
+            headers = session['header']    
+            entries = session['entries']    
+            idx_map = { h:i for i,h in enumerate(headers) }
 
-        # extract x values
-        xi = idx_map[xField]
-        x = []
-        for row in entries:
-            v = row[xi]
-            try:
-                x.append(float(v))
-            except (ValueError, TypeError):
-                x.append(v)
-
-        # extract each y‑column into its own list
-        y_lists = []
-        for f in fields:
-            fi = idx_map[f]
-            col = []
+            # extract x values
+            xi = idx_map[xField]
+            x = []
             for row in entries:
-                v = row[fi]
+                v = row[xi]
                 try:
-                    col.append(float(v))
+                    x.append(float(v))
                 except (ValueError, TypeError):
-                    col.append(v)
-            y_lists.append(col)
+                    x.append(v)
 
-        labels = [xField] + fields
-        y_lists = np.array(y_lists)
-        y_lists = np.rot90(y_lists)
-        reducer = umap.UMAP(n_components=2, random_state=42)
-        transformed = reducer.fit_transform(y_lists)
-        transformed = transformed.tolist()
-        
-        return render_template(
-            "ml.html", headers=headers, headers2=session['headers2'], selected=session['filename'], graph = graph, x=x, y_lists=transformed, labels=labels
-        )
-    return render_template("ml.html")
+            # extract each y‑column into its own list
+            y_lists = []
+            for f in fields:
+                fi = idx_map[f]
+                col = []
+                for row in entries:
+                    v = row[fi]
+                    try:
+                        col.append(float(v))
+                    except (ValueError, TypeError):
+                        col.append(v)
+                y_lists.append(col)
+
+            labels = [xField] + fields
+            y_lists = np.array(y_lists)
+            y_lists = np.rot90(y_lists)
+            reducer = umap.UMAP(n_components=2, random_state=42)
+            transformed = reducer.fit_transform(y_lists)
+            transformed = transformed.tolist()
+            
+            return render_template(
+                "ml.html", 
+                headers=headers, 
+                headers2=session['headers2'], 
+                selected=session['filename'], 
+                graph = graph, 
+                x=x, 
+                y_lists=transformed, 
+                labels=labels)
 
 @app.route("/file_list")
 def file_list():

@@ -95,6 +95,45 @@
         </a>
       {% endif %}
     {% endif %}
+  {% else %}
+    {% if selected %}
+      <!-- Form to generate chart -->
+      <div class="form-section">
+        <h2>Model for {{ selected }}</h2>
+        <form id="chart-options" method="get" action="{{ url_for('ml') }}">
+          <input type="hidden" name="file_id" value="{{ request.args.get('file_id') }}">
+
+          <label>Results Complexity:</label>
+          <select name="chartType">
+            <option value="twod">2D</option>
+            <option value="threed">3D</option>
+          </select>
+          <br><br>
+
+          <label>Select Categorization Variable:</label>
+          <select name="xField" required>
+            {% for header in headers %}
+              <option value="{{ header }}">{{ header }}</option>
+            {% endfor %}
+          </select>
+          <br><br>
+
+          <label>Select Variables to Train:</label><br>
+          {% for header in headers2 %}
+            <input type="checkbox" name="fields" value="{{ header }}"> {{ header }}<br>
+          {% endfor %}
+
+          <br>
+          <button class="btn btn-primary" type="submit">Generate</button>
+        </form>
+      </div>
+    {% else %}
+      <!-- If no files ask user to upload one -->
+      <h2>Upload a dataset to analyze</h2>
+      <a href="{{ url_for('upload', username=username) }}" style="text-decoration: none;">
+        <button class="btn btn-primary" type="submit">Upload dataset</button>
+      </a>
+    {% endif %}
   {% endif %}
 
   {% if graph == "twod" %}
