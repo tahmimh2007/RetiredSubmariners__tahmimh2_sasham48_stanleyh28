@@ -73,3 +73,7 @@ sashaM -- 2025-4-19 17:30
 stanleyH -- 2025-4-20 13:37
   - fixed selecting headings messages
   - allowed users to access ml without being logged in
+
+sashaM tahmimH -- 2025-4-21 10:59
+  - worked on fixing internal server error
+  - spoke about security concerns with tm, they are not warranted
