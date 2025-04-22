@@ -2,13 +2,19 @@
 Roster: Tahmim Hassan (frontend), Stanley Hoo (backend), Sasha Murokh (backend)
 
 
-Overview:
+## Overview/Features:
 Our site will allow users to display their data from csv/json files on charts or to create ML models based on their data. The format is as follows:
-- User uploads dataset, either csv or json
-- User selects either automatic or manual headings (auto will try to detect headings in csv/json files and use those, manual users will enter name for each field)
-- User selects bar graph, line graph, or scatter plot, then an independent variable, then a numerical dependent variable to display a graph
-- User selects non-numerical classifying variable, then the variables to train the model to return a machine learning model graph
+- User uploads dataset, either csv or json.
+- User selects either automatic or manual headings (auto will try to detect headings in csv/json files and use those, manual users will enter name for each field).
+- User selects bar graph, line graph, or scatter plot, then an independent variable, then a numerical dependent variable to display a graph.
+- User selects non-numerical classifying variable, then the variables to train the model to return a machine learning model graph.
 
+## Additional Feature Spotlight
+- Users can upload and analyze datasets with and withuot logging in.
+
+## Known Bugs/Issues
+- When not logged in, there is a file upload size limit
+- Machine learning model only works on datasets that are able to be processed by the umap library -- of a size/shape that can be dimensionally reduced. Most clustering datasets (think iris dataset) work, but you can try running any and find out what happens.
 
 ## Install Guide
 
