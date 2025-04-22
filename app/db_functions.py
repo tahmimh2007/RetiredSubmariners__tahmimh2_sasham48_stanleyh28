@@ -155,28 +155,27 @@ def save_csv_data(data):
 
 # For json files
 def save_json_data(data):
-    # try:
-    #
-    #     # Not in list format yet
-    #     if data[0] != '[':
-    #         # in format {...}, {...}, etc
-    #         if re.findall('''["']data["']:''', data) == []:
-    #             data_list = f'''[{', '.join(data.split('\n')).strip()[:-1]}]'''
-    #             json_data = json.loads(data_list)
-    #         # in format {'headers': {...}, 'data': {...}}
-    #         else:
-    #             json_data = json.loads(data)['data']
-    #             print(json_data)
-    #     # Converts string to json format
-    #     else:
-    #         json_data = json.loads(data)
-    #     header = list(json_data[0].keys()) if json_data else []
-    #     # print(header)
-    #     entries = [[item[key] for key in header] for item in json_data]
-    #     return header, entries
-    # except:
-    #     return None, None
-    return None, None #temporary
+    try:
+
+        # Not in list format yet
+        if data[0] != '[':
+            # in format {...}, {...}, etc
+            if re.findall('''["']data["']:''', data) == []:
+                data_list = f'''[{', '.join(data.split('\n')).strip()[:-1]}]'''
+                json_data = json.loads(data_list)
+            # in format {'headers': {...}, 'data': {...}}
+            else:
+                json_data = json.loads(data)['data']
+                print(json_data)
+        # Converts string to json format
+        else:
+            json_data = json.loads(data)
+        header = list(json_data[0].keys()) if json_data else []
+        # print(header)
+        entries = [[item[key] for key in header] for item in json_data]
+        return header, entries
+    except:
+        return None, None
 
 # Returns headers and entries of uploaded file to save
 def save_data(data, file_extension):
