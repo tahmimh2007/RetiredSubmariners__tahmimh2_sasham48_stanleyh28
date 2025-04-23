@@ -161,8 +161,7 @@ def save_json_data(data):
         if data[0] != '[':
             # in format {...}, {...}, etc
             if re.findall('''["']data["']:''', data) == []:
-                backslash = "\\"
-                data_list = f'''[{', '.join(data.split('{backslash}n')).strip()[:-1]}]'''
+                data_list = f'''[{', '.join(data.split('\n')).strip()[:-1]}]'''
                 json_data = json.loads(data_list)
             # in format {'headers': {...}, 'data': {...}}
             else:
@@ -215,8 +214,7 @@ def save_json_data_manual(data, headings):
         if data[0] != '[':
             # in format {...}, {...}, etc
             if re.findall('''["']data["']:''', data) == []:
-                backslash = "\\"
-                data_list = f'''[{', '.join(data.split('{backslash}n')).strip()[:-1]}]'''
+                data_list = f'''[{', '.join(data.split('\n')).strip()[:-1]}]'''
                 json_data = json.loads(data_list)
             # in format {'headers': {...}, 'data': {...}}
             else:
